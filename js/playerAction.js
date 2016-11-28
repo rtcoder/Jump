@@ -1,8 +1,6 @@
 var playerAction={
 	playerI:0,
 	jumped :false,
-	allowMoveLeft:true,
-	allowMoveRight:true,
 	allowJump:true,
 	fallout:false,
 	jumpBack:false,
@@ -28,19 +26,22 @@ var playerAction={
 		var p = Game.platforms;
 
 		if(Game.onPlatform.indexOf(true)<0){
-			var j=Game.minYpos;
+			var j=0;
 		}else{
 			var j=p[Game.onPlatform.indexOf(true)].y + p[Game.onPlatform.indexOf(true)].height;
 		}
 		if(Game.maxJump+Player.y-Player.height<j){
-			var j=playerAction.oldYplayerPos
+			var j=playerAction.oldYplayerPos;
 		}
 		if(Player.y<=j){
 			Player.y=j
-			clearInterval(playerAction.jumpEvent)
+			clearInterval(playerAction.jumpEvent);
 			playerAction.jumped=false;
 			playerAction.fallout=false;
 			playerAction.allowJump = true;
+			if(Player.y <= 0){
+				Game.finish();
+			}
 		}
 	},
 	jump:function(){
@@ -49,44 +50,36 @@ var playerAction={
 			playerAction.oldYplayerPos=Player.y;
 			playerAction.jumpBack=false
 			playerAction.jumpEvent = setInterval(function(){
-				if(!Game.isPaused){
-					if(!playerAction.jumpBack){
-						playerAction.jumpUP()
-					}else{
-						playerAction.jumpDOWN()
-					}
+				if(!playerAction.jumpBack){
+					playerAction.jumpUP();
+				}else{
+					playerAction.jumpDOWN();
 				}
 			},3)
 		}
 	},
 	moveLeft: function(){
-		Player.direction = 'left';
-		if(playerAction.allowMoveLeft){
-			var step = Player.step;
-			
-			if(playerAction.playerI < 20){
-				playerAction.playerI+=0.7;
-			}else{
-				playerAction.playerI = -20;
-			}
-			if(Player.x>=step){
-				Player.x-=step;
-			}
+		var step = Player.step;
+		
+		if(playerAction.playerI < 20){
+			playerAction.playerI+=0.7;
+		}else{
+			playerAction.playerI = -20;
+		}
+		if(Player.x>=step){
+			Player.x-=step;
 		}
 	},
 	moveRight: function(){
-		Player.direction = 'right';
-		if(playerAction.allowMoveRight){
-			var step = Player.step;
+		var step = Player.step;
 
-			if(playerAction.playerI < 20){
-				playerAction.playerI+=0.7;
-			}else{
-				playerAction.playerI = -20;
-			}
-			if(Player.x <= canvas.width - Player.width - step){
-				Player.x+=step;
-			}
+		if(playerAction.playerI < 20){
+			playerAction.playerI+=0.7;
+		}else{
+			playerAction.playerI = -20;
+		}
+		if(Player.x <= canvas.width - Player.width - step){
+			Player.x+=step;
 		}
 	}
 }

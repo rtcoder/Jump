@@ -65,6 +65,9 @@ function drawView(){
 		ctx.rect(p[i].x, canvas.height-p[i].y-p[i].height, p[i].width, p[i].height);
 		ctx.fill();
 		ctx.stroke();
+		if(Game.isStarted){
+			p[i].y-=0.2;
+		}
 	};
 
 	drawPlayer();
