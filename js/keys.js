@@ -1,8 +1,7 @@
 var keys = {
 	right : false,
 	left : false,
-	space : false,
-	H:false,
+	space : false
 }
 document.onkeyup = function(e){
 	e = e || window.event;
@@ -16,9 +15,6 @@ document.onkeyup = function(e){
 		break;
 		case 39:
 			keys.right = false;
-		break;
-		case 72:
-			keys.H = false;
 		break;
 	}
 }
@@ -34,9 +30,6 @@ document.onkeydown = function(e){
 		break;
 		case 39:
 			keys.right = true;
-		break;
-		case 72:
-			keys.H = true;
 		break;
 	}
 }
