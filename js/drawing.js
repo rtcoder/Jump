@@ -79,7 +79,7 @@ function drawView(){
 			ctx.stroke();
 		}
 		if(Game.fallingPlatforms){
-			p[i].y-=0.2+Game.score/1000;
+			p[i].y-=0.2+Game.score/500;
 		}
 		if(p[i].y+p[i].height < 0){
 			platformsToDelete.push(i);
