@@ -47,6 +47,7 @@ function drawPlayer(){
 }
 function drawView(){
 	var p = Game.platforms;
+	var platformsToDelete=[];
 	for (var i = 0; i < p.length; i++) {
 		ctx.beginPath();
 		switch(p[i].attribute){
@@ -59,16 +60,39 @@ function drawView(){
 				ctx.strokeStyle = 'transparent';
 			break;
 			default:
-				ctx.strokeStyle = '#73d216';
+				ctx.strokeStyle = 'transparent';
 				ctx.fillStyle = 'brown';
+		}
+		if(p[i].number==Game.current){
+			ctx.fillStyle = 'rgb(156, 131, 43)';
 		}
 		ctx.rect(p[i].x, canvas.height-p[i].y-p[i].height, p[i].width, p[i].height);
 		ctx.fill();
 		ctx.stroke();
-		if(Game.isStarted){
-			p[i].y-=0.2;
+
+		if(p[i].number % 100 == 0){
+			ctx.beginPath();
+			ctx.fillStyle = '#fff';
+			ctx.font = '10pt monospace';
+			ctx.fillText(p[i].number, (canvas.width+p[i].x)/2, canvas.height-p[i].y-p[i].height/4);
+			ctx.fill();
+			ctx.stroke();
+		}
+		if(Game.fallingPlatforms){
+			p[i].y-=0.2+Game.score/1000;
+		}
+		if(p[i].y+p[i].height < 0){
+			platformsToDelete.push(i);
 		}
 	};
 
+	if(platformsToDelete.length > 0){
+		for (var i = 0; i < platformsToDelete.length; i++) {
+			Game.platforms.splice(platformsToDelete[i],1);
+		}
+	}
+	if(Game.platforms.length <= 10){
+		Game.generatePlatofrms(100);
+	}
 	drawPlayer();
 }
