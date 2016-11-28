@@ -11,7 +11,7 @@ var checkCollisions = {
 			}
 		}
 		var tab=new Array();
-		var indexOnPlatform=-1;
+		var indexOnPlatform=null;
 		for(var i=0;i<Game.onPlatform.length;i++){
 			if(Game.onPlatform[i]==true){
 				tab.push(i)
@@ -31,6 +31,13 @@ var checkCollisions = {
 
 		indexOnPlatform=Game.onPlatform.indexOf(true);
 		if(indexOnPlatform >= 0){
+			if(Game.platforms[indexOnPlatform].number > Game.score){
+				Game.score=Game.platforms[indexOnPlatform].number;
+			}
+			Game.current=Game.platforms[indexOnPlatform].number;
+			if(Game.score>5){
+				Game.fallingPlatforms=true;
+			}
 			var stopPosY = p[indexOnPlatform].y + p[indexOnPlatform].height;
 		}else{
 			var stopPosY = 0;

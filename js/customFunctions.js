@@ -18,8 +18,8 @@ function getRandomInt(min, max) {
 
 // console =  {}
 function resize(){
-	if(window.innerWidth > 400)
-		canvas.setAttribute('width', 400);
+	if(window.innerWidth > 450)
+		canvas.setAttribute('width', 450);
 	else
 		canvas.setAttribute('width', window.innerWidth);
 

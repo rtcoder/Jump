@@ -1,3 +1,12 @@
+var Player = {
+	step : 3,
+	maxJump : 80,
+	x : null,
+	y : null,
+	width : 20,
+	height : 60
+}
+
 var playerAction={
 	playerI:0,
 	jumped :false,
@@ -60,7 +69,7 @@ var playerAction={
 	},
 	moveLeft: function(){
 		var step = Player.step;
-		
+
 		if(playerAction.playerI < 20){
 			playerAction.playerI+=0.7;
 		}else{
