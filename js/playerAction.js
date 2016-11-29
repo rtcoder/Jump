@@ -4,7 +4,8 @@ var Player = {
 	x : null,
 	y : null,
 	width : 20,
-	height : 60
+	height : 40,
+	color: '#0c7893'
 }
 
 var playerAction={
@@ -38,9 +39,6 @@ var playerAction={
 			var j=0;
 		}else{
 			var j=p[Game.onPlatform.indexOf(true)].y + p[Game.onPlatform.indexOf(true)].height;
-		}
-		if(Game.maxJump+Player.y-Player.height<j){
-			var j=playerAction.oldYplayerPos;
 		}
 		if(Player.y<=j){
 			Player.y=j
