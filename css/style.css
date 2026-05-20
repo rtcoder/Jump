@@ -45,7 +45,7 @@ canvas{
 	left: 14px;
 	right: 14px;
 	display: grid;
-	grid-template-columns: repeat(3, minmax(76px, 1fr));
+	grid-template-columns: repeat(4, minmax(64px, 1fr));
 	gap: 8px;
 	pointer-events: none;
 	opacity: .95;
@@ -86,6 +86,18 @@ canvas{
 }
 .hud-shield.is-active strong{
 	color: #81e6d9;
+}
+.hud-combo{
+	text-align: center;
+	opacity: .72;
+}
+.hud-combo.is-active{
+	opacity: .98;
+	border-color: rgba(250, 204, 21, .65);
+	box-shadow: 0 0 18px rgba(250, 204, 21, .16);
+}
+.hud-combo.is-active strong{
+	color: #facc15;
 }
 #mask{
 	position: absolute;

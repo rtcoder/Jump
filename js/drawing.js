@@ -317,6 +317,34 @@ function drawPlatform(ctx, Game, platform) {
             ctx.fillText('+', platform.x + platform.width / 2, screenY + platform.height - 2);
         }
     }
+    if (platform.type === 'coin') {
+        const centerX = platform.x + platform.width / 2;
+        const centerY = screenY + platform.height / 2;
+        ctx.fillStyle = platform.used ? 'rgba(255, 255, 255, .45)' : '#fff7ad';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, platform.used ? 4 : 8, 0, 2 * Math.PI, false);
+        ctx.fill();
+        if (!platform.used) {
+            ctx.strokeStyle = '#78350f';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 8, 0, 2 * Math.PI, false);
+            ctx.stroke();
+        }
+    }
+    if (platform.type === 'combo') {
+        const centerX = platform.x + platform.width / 2;
+        const centerY = screenY + platform.height / 2;
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 11px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('x+', centerX, centerY + 4);
+        ctx.strokeStyle = 'rgba(255, 255, 255, .82)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 13, Math.PI * 0.15, Math.PI * 1.85, false);
+        ctx.stroke();
+    }
     if (platform.type === 'fake') {
         ctx.strokeStyle = platform.used ? 'rgba(255, 255, 255, .24)' : 'rgba(255, 255, 255, .42)';
         ctx.lineWidth = 2;

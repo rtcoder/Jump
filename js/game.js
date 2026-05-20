@@ -1,8 +1,8 @@
-import { checkCollisions } from './checkCollisions.js?v=module-18';
-import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-18';
-import { drawView } from './drawing.js?v=module-18';
-import { keys } from './keys.js?v=module-18';
-import { Player, playerAction } from './playerAction.js?v=module-18';
+import { checkCollisions } from './checkCollisions.js?v=module-19';
+import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-19';
+import { drawView } from './drawing.js?v=module-19';
+import { keys } from './keys.js?v=module-19';
+import { Player, playerAction } from './playerAction.js?v=module-19';
 
 export const Game = {
     canvas: null,
@@ -27,6 +27,8 @@ export const Game = {
     newRecordShown: false,
     slowMotionTimer: 0,
     slowMotionFactor: 0.48,
+    comboCount: 0,
+    comboMultiplier: 1,
     colors: {
         normal: '#e14f62',
         moving: '#4bc0ff',
@@ -49,6 +51,8 @@ export const Game = {
         hot: '#f97316',
         thin: '#facc15',
         fake: '#e14f62',
+        coin: '#fbbf24',
+        combo: '#ec4899',
         checkpoint: '#f4d35e',
         current: '#fff3a3',
     },
@@ -102,6 +106,7 @@ export const Game = {
         Game.cameraY = 0;
         Game.newRecordShown = false;
         Game.slowMotionTimer = 0;
+        Game.resetCombo();
         playerAction.reset();
         Game.generatePlatforms(120);
         Game.setPlayer();
@@ -151,6 +156,8 @@ export const Game = {
         document.getElementById('best-score').innerHTML = Game.bestScore;
         document.getElementById('hud-shield-value').innerHTML = Player.shield ? 'On' : 'Off';
         document.getElementById('hud-shield').classList.toggle('is-active', Player.shield);
+        document.getElementById('hud-combo-value').innerHTML = `x${Game.comboMultiplier}`;
+        document.getElementById('hud-combo').classList.toggle('is-active', Game.comboMultiplier > 1);
     },
     loop: function (timestamp) {
         if (!Game.isStarted) {
@@ -358,6 +365,8 @@ export const Game = {
                 hotTimer: 0.55,
                 thinBonus: 6,
                 checkpointSlowDuration: 1.1,
+                coinBonus: 12,
+                comboBonus: 3,
             };
             platform.centerX = platform.x + platform.width / 2;
             if (number % 100 === 0) {
@@ -435,6 +444,12 @@ export const Game = {
                 platform.x = Math.max(8, Math.min(Game.getWidth() - platform.width - 8, platform.x + width * 0.28));
                 platform.centerX = platform.x + platform.width / 2;
                 platform.height = 9;
+            } else if (number > 30 && number % 97 === 0) {
+                platform.type = 'coin';
+                platform.height = 12;
+            } else if (number > 30 && number % 101 === 0) {
+                platform.type = 'combo';
+                platform.height = 12;
             } else if (number > 8 && number % 11 === 0) {
                 platform.type = 'crumble';
                 platform.height = 11;
@@ -451,11 +466,38 @@ export const Game = {
     updateCurrentPlatform: function (platform) {
         Game.onPlatform = [];
         if (platform) {
+            if (platform.type === 'fake' && platform.used) {
+                return;
+            }
+            const firstLandingAbove = platform.number > Game.current;
             Game.current = platform.number;
-            if (platform.number > Game.score) {
+            if (firstLandingAbove) {
+                Game.advanceCombo(platform);
+                let nextScore = platform.number + Math.max(0, Game.comboMultiplier - 1);
+                if (platform.type === 'coin' && !platform.used) {
+                    platform.used = true;
+                    nextScore += platform.coinBonus * Game.comboMultiplier;
+                    Game.addParticles(platform.x + platform.width / 2, platform.y + platform.height, '#fbbf24', 28);
+                }
+                if (platform.type === 'combo') {
+                    nextScore += platform.comboBonus * Game.comboMultiplier;
+                    Game.addParticles(platform.x + platform.width / 2, platform.y + platform.height, '#ec4899', 24);
+                }
+                if (nextScore > Game.score) {
+                    Game.score = nextScore;
+                }
+            } else if (platform.number > Game.score) {
                 Game.score = platform.number;
             }
         }
+    },
+    resetCombo: function () {
+        Game.comboCount = 0;
+        Game.comboMultiplier = 1;
+    },
+    advanceCombo: function (platform) {
+        Game.comboCount += platform.type === 'combo' ? 2 : 1;
+        Game.comboMultiplier = Math.min(5, 1 + Math.floor(Game.comboCount / 4));
     },
     applyMagnetForces: function (dt) {
         if (Player.grounded) {
@@ -537,6 +579,7 @@ export const Game = {
                         Game.addParticles(Player.x + Player.width / 2, Player.y, '#81e6d9', 30);
                     } else {
                         Game.addParticles(Player.x + Player.width / 2, Player.y, '#f97316', 34);
+                        Game.resetCombo();
                         Game.finish();
                     }
                     return;
@@ -562,6 +605,7 @@ export const Game = {
             Player.previousY = Player.y;
         } else {
             Player.grounded = false;
+            Game.resetCombo();
         }
     },
     addParticles: function (x, y, color, count) {
@@ -589,11 +633,13 @@ export const Game = {
     },
     handleFallout: function () {
         if (!Player.shield) {
+            Game.resetCombo();
             Game.finish();
             return;
         }
         const rescuePlatform = Game.findRescuePlatform();
         if (!rescuePlatform) {
+            Game.resetCombo();
             Game.finish();
             return;
         }

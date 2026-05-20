@@ -154,6 +154,7 @@ export const playerAction = {
                     Game.addParticles(Player.x + Player.width / 2, Player.y, '#81e6d9', 30);
                 } else {
                     Game.addParticles(Player.x + Player.width / 2, Player.y, '#ef4444', 28);
+                    Game.resetCombo();
                     Game.finish();
                 }
             } else {
@@ -193,6 +194,7 @@ export const playerAction = {
             }
         } else if (platform.type === 'fake') {
             platform.used = true;
+            Game.resetCombo();
             Player.grounded = false;
             Player.velocityY = Math.min(Player.velocityY, -120);
             this.jumped = true;
