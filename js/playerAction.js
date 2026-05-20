@@ -168,6 +168,11 @@ export const playerAction = {
             } else {
                 Game.addParticles(Player.x + Player.width / 2, Player.y, '#f8fafc', 7);
             }
+        } else if (platform.type === 'magnet') {
+            Game.addParticles(Player.x + Player.width / 2, Player.y, '#22d3ee', 12);
+        } else if (platform.type === 'slow') {
+            Game.slowMotionTimer = platform.slowDuration;
+            Game.addParticles(Player.x + Player.width / 2, Player.y, '#818cf8', 22);
         } else if (platform.type === 'shield') {
             if (!platform.used) {
                 platform.used = true;

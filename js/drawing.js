@@ -245,6 +245,36 @@ function drawPlatform(ctx, Game, platform) {
             ctx.stroke();
         }
     }
+    if (platform.type === 'magnet') {
+        const centerX = platform.x + platform.width / 2;
+        const centerY = screenY + platform.height / 2;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(centerX - 7, centerY, 5, Math.PI * 0.5, Math.PI * 1.5, false);
+        ctx.arc(centerX + 7, centerY, 5, Math.PI * 1.5, Math.PI * 0.5, false);
+        ctx.stroke();
+        ctx.globalAlpha = 0.2;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 22, 0, 2 * Math.PI, false);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+    }
+    if (platform.type === 'slow') {
+        const centerX = platform.x + platform.width / 2;
+        const centerY = screenY + platform.height / 2;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 7, -Math.PI * 0.5, Math.PI * 1.2, false);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(centerX, centerY - 5);
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(centerX + 5, centerY + 2);
+        ctx.stroke();
+    }
     if (platform.type === 'crumble') {
         ctx.strokeStyle = platform.crumbling ? '#5f3d2d' : 'rgba(95, 61, 45, .72)';
         ctx.lineWidth = 2;

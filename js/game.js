@@ -1,8 +1,8 @@
-import { checkCollisions } from './checkCollisions.js?v=module-13';
-import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-13';
-import { drawView } from './drawing.js?v=module-13';
-import { keys } from './keys.js?v=module-13';
-import { Player, playerAction } from './playerAction.js?v=module-13';
+import { checkCollisions } from './checkCollisions.js?v=module-14';
+import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-14';
+import { drawView } from './drawing.js?v=module-14';
+import { keys } from './keys.js?v=module-14';
+import { Player, playerAction } from './playerAction.js?v=module-14';
 
 export const Game = {
     canvas: null,
@@ -25,6 +25,8 @@ export const Game = {
     platforms: [],
     particles: [],
     newRecordShown: false,
+    slowMotionTimer: 0,
+    slowMotionFactor: 0.48,
     colors: {
         normal: '#e14f62',
         moving: '#4bc0ff',
@@ -42,6 +44,8 @@ export const Game = {
         rotate: '#f59e0b',
         spike: '#ef4444',
         mine: '#111827',
+        magnet: '#22d3ee',
+        slow: '#818cf8',
         checkpoint: '#f4d35e',
         current: '#fff3a3',
     },
@@ -91,6 +95,7 @@ export const Game = {
         Game.score = 0;
         Game.cameraY = 0;
         Game.newRecordShown = false;
+        Game.slowMotionTimer = 0;
         playerAction.reset();
         Game.generatePlatforms(120);
         Game.setPlayer();
@@ -155,9 +160,12 @@ export const Game = {
         Game.animationFrame = requestAnimationFrame(Game.loop);
     },
     update: function (dt) {
-        Game.movePlatforms(dt);
+        const gameplayDt = Game.slowMotionTimer > 0 ? dt * Game.slowMotionFactor : dt;
+        Game.slowMotionTimer = Math.max(0, Game.slowMotionTimer - dt);
+        Game.movePlatforms(gameplayDt);
         Game.ensurePlatformBuffer();
-        playerAction.update(dt, Game, keys);
+        Game.applyMagnetForces(gameplayDt);
+        playerAction.update(gameplayDt, Game, keys);
         checkCollisions.checkPlatformsEnd(Game, Player, playerAction);
         Game.updateCamera(dt);
         Game.updateParticles(dt);
@@ -336,6 +344,10 @@ export const Game = {
                 spikeSafeEnd: 0.76,
                 mineForceX: 175,
                 mineForceY: 610,
+                magnetRangeX: 165,
+                magnetRangeY: 160,
+                magnetStrength: 95,
+                slowDuration: 2.15,
             };
             platform.centerX = platform.x + platform.width / 2;
             if (number % 100 === 0) {
@@ -392,6 +404,12 @@ export const Game = {
             } else if (number > 24 && number % 67 === 0) {
                 platform.type = 'mine';
                 platform.height = 12;
+            } else if (number > 24 && number % 71 === 0) {
+                platform.type = 'magnet';
+                platform.height = 12;
+            } else if (number > 26 && number % 73 === 0) {
+                platform.type = 'slow';
+                platform.height = 12;
             } else if (number > 8 && number % 11 === 0) {
                 platform.type = 'crumble';
                 platform.height = 11;
@@ -413,6 +431,43 @@ export const Game = {
                 Game.score = platform.number;
             }
         }
+    },
+    applyMagnetForces: function (dt) {
+        if (Player.grounded) {
+            return;
+        }
+        const playerCenter = Player.x + Player.width / 2;
+        let strongestMagnet = null;
+        let strongestInfluence = 0;
+        for (let i = 0; i < Game.platforms.length; i++) {
+            const platform = Game.platforms[i];
+            if (platform.type !== 'magnet' || !Game.isPlatformSolid(platform)) {
+                continue;
+            }
+            const platformCenter = platform.x + platform.width / 2;
+            const dx = platformCenter - playerCenter;
+            const dy = Math.abs((platform.y + platform.height) - Player.y);
+            const inRangeX = Math.abs(dx) < platform.magnetRangeX;
+            const inRangeY = dy < platform.magnetRangeY;
+            if (!inRangeX || !inRangeY) {
+                continue;
+            }
+            const influence = (1 - Math.abs(dx) / platform.magnetRangeX) *
+                (1 - dy / platform.magnetRangeY);
+            if (influence > strongestInfluence) {
+                strongestInfluence = influence;
+                strongestMagnet = platform;
+            }
+        }
+        if (!strongestMagnet) {
+            return;
+        }
+        const targetCenter = strongestMagnet.x + strongestMagnet.width / 2;
+        const direction = targetCenter > playerCenter ? 1 : -1;
+        Player.x = Math.max(0, Math.min(
+            Game.getWidth() - Player.width,
+            Player.x + direction * strongestMagnet.magnetStrength * strongestInfluence * dt
+        ));
     },
     updateCamera: function (dt) {
         const playerTop = Game.worldToScreenY(Player.y, Player.height);
