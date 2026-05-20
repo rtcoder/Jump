@@ -1,8 +1,8 @@
-import { checkCollisions } from './checkCollisions.js?v=module-6';
-import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-6';
-import { drawView } from './drawing.js?v=module-6';
-import { keys } from './keys.js?v=module-6';
-import { Player, playerAction } from './playerAction.js?v=module-6';
+import { checkCollisions } from './checkCollisions.js?v=module-7';
+import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-7';
+import { drawView } from './drawing.js?v=module-7';
+import { keys } from './keys.js?v=module-7';
+import { Player, playerAction } from './playerAction.js?v=module-7';
 
 export const Game = {
     canvas: null,
@@ -34,6 +34,8 @@ export const Game = {
         boost: '#a78bfa',
         vertical: '#fb7185',
         conveyor: '#34d399',
+        vanish: '#c084fc',
+        shield: '#81e6d9',
         checkpoint: '#f4d35e',
         current: '#fff3a3',
     },
@@ -45,6 +47,9 @@ export const Game = {
     },
     worldToScreenY: function (y, height = 0) {
         return Game.getHeight() - (y - Game.cameraY) - height;
+    },
+    isPlatformSolid: function (platform) {
+        return platform.type !== 'vanish' || platform.vanishActive;
     },
     loadBestScore: function () {
         try {
@@ -126,6 +131,8 @@ export const Game = {
         document.getElementById('hud-score-value').innerHTML = Game.score;
         document.getElementById('hud-best-value').innerHTML = Game.bestScore;
         document.getElementById('best-score').innerHTML = Game.bestScore;
+        document.getElementById('hud-shield-value').innerHTML = Player.shield ? 'On' : 'Off';
+        document.getElementById('hud-shield').classList.toggle('is-active', Player.shield);
     },
     loop: function (timestamp) {
         if (!Game.isStarted) {
@@ -149,7 +156,7 @@ export const Game = {
         Game.saveBestScore();
         Game.updateHud();
         if (Game.worldToScreenY(Player.y, Player.height) > Game.getHeight() + 50) {
-            Game.finish();
+            Game.handleFallout();
         }
     },
     draw: function () {
@@ -204,6 +211,11 @@ export const Game = {
                 }
                 p.y += p.verticalOffset - oldOffset;
             }
+            if (p.type === 'vanish') {
+                p.vanishTimer += dt;
+                const phaseTime = p.vanishTimer % p.vanishCycle;
+                p.vanishActive = phaseTime < p.vanishActiveTime;
+            }
         }
         Game.platforms = Game.platforms.filter((platform) => {
             const stillAboveScreen = platform.y + platform.height > -20;
@@ -247,6 +259,10 @@ export const Game = {
                 verticalDirection: Math.random() > 0.5 ? 1 : -1,
                 conveyorDirection: Math.random() > 0.5 ? 1 : -1,
                 conveyorSpeed: 82,
+                vanishTimer: Math.random() * 2,
+                vanishCycle: 2.2,
+                vanishActiveTime: 1.35,
+                vanishActive: true,
             };
             platform.centerX = platform.x + platform.width / 2;
             if (number % 100 === 0) {
@@ -274,6 +290,12 @@ export const Game = {
             } else if (number > 14 && number % 37 === 0) {
                 platform.type = 'conveyor';
                 platform.height = 11;
+            } else if (number > 18 && number % 41 === 0) {
+                platform.type = 'vanish';
+                platform.height = 10;
+            } else if (number > 20 && number % 43 === 0) {
+                platform.type = 'shield';
+                platform.height = 12;
             } else if (number > 8 && number % 11 === 0) {
                 platform.type = 'crumble';
                 platform.height = 11;
@@ -320,6 +342,10 @@ export const Game = {
             Player.grounded = false;
             return;
         }
+        if (!Game.isPlatformSolid(platform)) {
+            Player.grounded = false;
+            return;
+        }
         const horizontalOverlap = Player.x + Player.width > platform.x + 4 &&
             Player.x < platform.x + platform.width - 4;
         if (horizontalOverlap) {
@@ -357,6 +383,45 @@ export const Game = {
             particle.vy -= 260 * dt;
         }
         Game.particles = Game.particles.filter((particle) => particle.life > 0);
+    },
+    handleFallout: function () {
+        if (!Player.shield) {
+            Game.finish();
+            return;
+        }
+        const rescuePlatform = Game.findRescuePlatform();
+        if (!rescuePlatform) {
+            Game.finish();
+            return;
+        }
+        Player.shield = false;
+        Player.x = Math.max(8, Math.min(
+            Game.getWidth() - Player.width - 8,
+            rescuePlatform.x + rescuePlatform.width / 2 - Player.width / 2
+        ));
+        Player.y = rescuePlatform.y + rescuePlatform.height + 4;
+        Player.previousY = Player.y;
+        Player.velocityY = Player.boostJumpVelocity * 0.72;
+        Player.grounded = false;
+        Player.landingPulse = 1;
+        Game.cameraY = Math.max(0, Player.y + Player.height - Game.getHeight() * 0.72);
+        Game.addParticles(Player.x + Player.width / 2, Player.y, '#81e6d9', 34);
+        Game.updateHud();
+    },
+    findRescuePlatform: function () {
+        let candidate = null;
+        for (let i = 0; i < Game.platforms.length; i++) {
+            const platform = Game.platforms[i];
+            if (!Game.isPlatformSolid(platform)) {
+                continue;
+            }
+            const visibleY = Game.worldToScreenY(platform.y, platform.height);
+            const safelyVisible = visibleY > Game.getHeight() * 0.38 && visibleY < Game.getHeight() - 80;
+            if (safelyVisible && (!candidate || platform.y > candidate.y)) {
+                candidate = platform;
+            }
+        }
+        return candidate;
     },
     handleResize: function () {
         const oldWidth = Game.getWidth();

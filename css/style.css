@@ -44,8 +44,9 @@ canvas{
 	top: 14px;
 	left: 14px;
 	right: 14px;
-	display: flex;
-	justify-content: space-between;
+	display: grid;
+	grid-template-columns: repeat(3, minmax(76px, 1fr));
+	gap: 8px;
 	pointer-events: none;
 	opacity: .95;
 }
@@ -73,6 +74,18 @@ canvas{
 	margin-top: 2px;
 	font-size: 24px;
 	line-height: 1;
+}
+.hud-shield{
+	opacity: .45;
+	text-align: center;
+}
+.hud-shield.is-active{
+	opacity: .95;
+	border-color: rgba(129, 230, 217, .65);
+	box-shadow: 0 0 18px rgba(129, 230, 217, .18);
+}
+.hud-shield.is-active strong{
+	color: #81e6d9;
 }
 #mask{
 	position: absolute;
@@ -231,11 +244,11 @@ canvas{
 		top: max(12px, env(safe-area-inset-top));
 	}
 	.hud-item{
-		min-width: 82px;
+		min-width: 0;
 		padding: 7px 9px;
 	}
 	.hud-item strong{
-		font-size: 22px;
+		font-size: 20px;
 	}
 	#mask{
 		padding: max(22px, env(safe-area-inset-top)) 22px max(22px, env(safe-area-inset-bottom));

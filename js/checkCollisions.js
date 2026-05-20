@@ -4,6 +4,9 @@ export const checkCollisions = {
         if (!Player.grounded && Player.velocityY <= 0) {
             for (let i = 0; i < Game.platforms.length; i++) {
                 const platform = Game.platforms[i];
+                if (!Game.isPlatformSolid(platform)) {
+                    continue;
+                }
                 const platformTop = platform.y + platform.height;
                 const horizontalOverlap = Player.x + Player.width > platform.x + 4 &&
                     Player.x < platform.x + platform.width - 4;

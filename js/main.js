@@ -1,5 +1,5 @@
-import { Game, initGame } from './game.js?v=module-6';
-import { resetControls, setupKeyboardControls, setupTouchControls } from './keys.js?v=module-6';
+import { Game, initGame } from './game.js?v=module-7';
+import { resetControls, setupKeyboardControls, setupTouchControls } from './keys.js?v=module-7';
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');

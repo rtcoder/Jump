@@ -53,6 +53,12 @@ function drawPlatform(ctx, Game, platform) {
     if (platform.type === 'boost' && platform.used) {
         ctx.globalAlpha = 0.45;
     }
+    if (platform.type === 'vanish') {
+        ctx.globalAlpha = platform.vanishActive ? 0.9 : 0.26;
+    }
+    if (platform.type === 'shield' && platform.used) {
+        ctx.globalAlpha = 0.42;
+    }
     drawRoundedRect(ctx, platform.x, screenY, platform.width, platform.height, 5);
     ctx.fillStyle = color;
     ctx.fill();
@@ -122,6 +128,30 @@ function drawPlatform(ctx, Game, platform) {
             ctx.fill();
         }
     }
+    if (platform.type === 'vanish') {
+        ctx.strokeStyle = platform.vanishActive ? '#ffffff' : 'rgba(255, 255, 255, .45)';
+        ctx.lineWidth = 2;
+        const dashWidth = Math.max(14, platform.width / 6);
+        for (let x = platform.x + 8; x < platform.x + platform.width - 8; x += dashWidth) {
+            ctx.beginPath();
+            ctx.moveTo(x, screenY + platform.height / 2);
+            ctx.lineTo(Math.min(platform.x + platform.width - 8, x + dashWidth * 0.45), screenY + platform.height / 2);
+            ctx.stroke();
+        }
+    }
+    if (platform.type === 'shield') {
+        const centerX = platform.x + platform.width / 2;
+        const centerY = screenY + platform.height / 2;
+        ctx.strokeStyle = platform.used ? 'rgba(255, 255, 255, .5)' : '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY - 6);
+        ctx.quadraticCurveTo(centerX + 8, centerY - 4, centerX + 7, centerY + 2);
+        ctx.quadraticCurveTo(centerX + 5, centerY + 8, centerX, centerY + 10);
+        ctx.quadraticCurveTo(centerX - 5, centerY + 8, centerX - 7, centerY + 2);
+        ctx.quadraticCurveTo(centerX - 8, centerY - 4, centerX, centerY - 6);
+        ctx.stroke();
+    }
     if (platform.type === 'crumble') {
         ctx.strokeStyle = platform.crumbling ? '#5f3d2d' : 'rgba(95, 61, 45, .72)';
         ctx.lineWidth = 2;
@@ -184,6 +214,14 @@ function drawPlayer(ctx, Game, Player, playerAction) {
     ctx.arc(centerX + 4 + Player.facing, screenY + 9, 2, 0, 2 * Math.PI, false);
     ctx.fill();
     ctx.restore();
+
+    if (Player.shield) {
+        ctx.strokeStyle = 'rgba(129, 230, 217, .85)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(centerX, screenY + 20, 22, 0, 2 * Math.PI, false);
+        ctx.stroke();
+    }
 }
 
 function drawParticles(ctx, Game) {

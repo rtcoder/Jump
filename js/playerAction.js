@@ -15,6 +15,7 @@ export const Player = {
     landingPulse: 0,
     slideVelocityX: 0,
     iceTimer: 0,
+    shield: false,
 };
 
 export const playerAction = {
@@ -38,6 +39,7 @@ export const playerAction = {
         Player.landingPulse = 0;
         Player.slideVelocityX = 0;
         Player.iceTimer = 0;
+        Player.shield = false;
     },
     moveLeft: function (dt) {
         Player.facing = -1;
@@ -123,6 +125,14 @@ export const playerAction = {
             Player.iceTimer = 0.9;
             Player.slideVelocityX = (Player.facing || 1) * 78;
             Game.addParticles(Player.x + Player.width / 2, Player.y, '#b8f7ff', 10);
+        } else if (platform.type === 'shield') {
+            if (!platform.used) {
+                platform.used = true;
+                Player.shield = true;
+                Game.addParticles(Player.x + Player.width / 2, Player.y, '#81e6d9', 24);
+            } else {
+                Game.addParticles(Player.x + Player.width / 2, Player.y, '#f8fafc', 7);
+            }
         } else if (platform.type === 'crumble') {
             if (!platform.crumbling) {
                 platform.crumbling = true;
