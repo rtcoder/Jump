@@ -173,6 +173,17 @@ export const playerAction = {
         } else if (platform.type === 'slow') {
             Game.slowMotionTimer = platform.slowDuration;
             Game.addParticles(Player.x + Player.width / 2, Player.y, '#818cf8', 22);
+        } else if (platform.type === 'hot') {
+            platform.hotTimer = platform.hotDuration;
+            Game.addParticles(Player.x + Player.width / 2, Player.y, '#f97316', 12);
+        } else if (platform.type === 'thin') {
+            if (!platform.used) {
+                platform.used = true;
+                Game.score = Math.max(Game.score, platform.number + platform.thinBonus);
+                Game.addParticles(Player.x + Player.width / 2, Player.y, '#facc15', 20);
+            } else {
+                Game.addParticles(Player.x + Player.width / 2, Player.y, '#f8fafc', 7);
+            }
         } else if (platform.type === 'shield') {
             if (!platform.used) {
                 platform.used = true;

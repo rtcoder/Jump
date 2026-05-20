@@ -1,8 +1,8 @@
-import { checkCollisions } from './checkCollisions.js?v=module-14';
-import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-14';
-import { drawView } from './drawing.js?v=module-14';
-import { keys } from './keys.js?v=module-14';
-import { Player, playerAction } from './playerAction.js?v=module-14';
+import { checkCollisions } from './checkCollisions.js?v=module-16';
+import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-16';
+import { drawView } from './drawing.js?v=module-16';
+import { keys } from './keys.js?v=module-16';
+import { Player, playerAction } from './playerAction.js?v=module-16';
 
 export const Game = {
     canvas: null,
@@ -46,6 +46,8 @@ export const Game = {
         mine: '#111827',
         magnet: '#22d3ee',
         slow: '#818cf8',
+        hot: '#f97316',
+        thin: '#facc15',
         checkpoint: '#f4d35e',
         current: '#fff3a3',
     },
@@ -348,6 +350,9 @@ export const Game = {
                 magnetRangeY: 160,
                 magnetStrength: 95,
                 slowDuration: 2.15,
+                hotDuration: 0.55,
+                hotTimer: 0.55,
+                thinBonus: 6,
             };
             platform.centerX = platform.x + platform.width / 2;
             if (number % 100 === 0) {
@@ -410,6 +415,18 @@ export const Game = {
             } else if (number > 26 && number % 73 === 0) {
                 platform.type = 'slow';
                 platform.height = 12;
+            } else if (number > 28 && number % 79 === 0) {
+                platform.type = 'hot';
+                platform.height = 12;
+                platform.hotTimer = platform.hotDuration;
+            } else if (number > 28 && number % 83 === 0) {
+                platform.type = 'thin';
+                platform.width = Math.max(42, Math.floor(platform.width * 0.42));
+                platform.maxWidth = platform.width;
+                platform.minWidth = platform.width;
+                platform.x = Math.max(8, Math.min(Game.getWidth() - platform.width - 8, platform.x + width * 0.28));
+                platform.centerX = platform.x + platform.width / 2;
+                platform.height = 9;
             } else if (number > 8 && number % 11 === 0) {
                 platform.type = 'crumble';
                 platform.height = 11;
@@ -500,6 +517,23 @@ export const Game = {
         const horizontalOverlap = Player.x + Player.width > platform.x + 4 &&
             Player.x < platform.x + platform.width - 4;
         if (horizontalOverlap) {
+            if (platform.type === 'hot' && !platform.used) {
+                platform.hotTimer = Math.max(0, platform.hotTimer - dt);
+                if (platform.hotTimer <= 0) {
+                    platform.used = true;
+                    if (Player.shield) {
+                        Player.shield = false;
+                        Player.grounded = false;
+                        Player.velocityY = Player.boostJumpVelocity * 0.78;
+                        Player.previousY = Player.y;
+                        Game.addParticles(Player.x + Player.width / 2, Player.y, '#81e6d9', 30);
+                    } else {
+                        Game.addParticles(Player.x + Player.width / 2, Player.y, '#f97316', 34);
+                        Game.finish();
+                    }
+                    return;
+                }
+            }
             if (platform.type === 'conveyor') {
                 Player.x = Math.max(0, Math.min(
                     Game.getWidth() - Player.width,

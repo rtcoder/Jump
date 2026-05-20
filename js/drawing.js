@@ -275,6 +275,40 @@ function drawPlatform(ctx, Game, platform) {
         ctx.lineTo(centerX + 5, centerY + 2);
         ctx.stroke();
     }
+    if (platform.type === 'hot') {
+        const progress = Math.max(0, Math.min(1, platform.hotTimer / platform.hotDuration));
+        const centerX = platform.x + platform.width / 2;
+        const warning = progress < 0.35;
+        ctx.fillStyle = 'rgba(124, 45, 18, .65)';
+        drawRoundedRect(ctx, platform.x + 7, screenY + 3, platform.width - 14, 4, 2);
+        ctx.fill();
+        ctx.fillStyle = warning ? '#ffffff' : 'rgba(255, 255, 255, .88)';
+        drawRoundedRect(ctx, platform.x + 7, screenY + 3, (platform.width - 14) * progress, 4, 2);
+        ctx.fill();
+        ctx.fillStyle = warning ? '#ffffff' : '#7c2d12';
+        for (let i = 0; i < 3; i++) {
+            const flameX = centerX - 13 + i * 13;
+            ctx.beginPath();
+            ctx.moveTo(flameX, screenY - 8);
+            ctx.quadraticCurveTo(flameX + 5, screenY - 1, flameX, screenY + 3);
+            ctx.quadraticCurveTo(flameX - 5, screenY - 1, flameX, screenY - 8);
+            ctx.fill();
+        }
+    }
+    if (platform.type === 'thin') {
+        ctx.strokeStyle = '#78350f';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(platform.x + 5, screenY + platform.height / 2);
+        ctx.lineTo(platform.x + platform.width - 5, screenY + platform.height / 2);
+        ctx.stroke();
+        if (!platform.used) {
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 10px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('+', platform.x + platform.width / 2, screenY + platform.height - 2);
+        }
+    }
     if (platform.type === 'crumble') {
         ctx.strokeStyle = platform.crumbling ? '#5f3d2d' : 'rgba(95, 61, 45, .72)';
         ctx.lineWidth = 2;
