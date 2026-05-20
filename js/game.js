@@ -1,8 +1,8 @@
-import { checkCollisions } from './checkCollisions.js?v=module-5';
-import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-5';
-import { drawView } from './drawing.js?v=module-5';
-import { keys } from './keys.js?v=module-5';
-import { Player, playerAction } from './playerAction.js?v=module-5';
+import { checkCollisions } from './checkCollisions.js?v=module-6';
+import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-6';
+import { drawView } from './drawing.js?v=module-6';
+import { keys } from './keys.js?v=module-6';
+import { Player, playerAction } from './playerAction.js?v=module-6';
 
 export const Game = {
     canvas: null,
@@ -32,6 +32,8 @@ export const Game = {
         crumble: '#d7a86e',
         ice: '#b8f7ff',
         boost: '#a78bfa',
+        vertical: '#fb7185',
+        conveyor: '#34d399',
         checkpoint: '#f4d35e',
         current: '#fff3a3',
     },
@@ -189,6 +191,19 @@ export const Game = {
             if (p.type === 'crumble' && p.crumbling) {
                 p.crumbleTimer -= dt;
             }
+            if (p.type === 'vertical') {
+                const oldOffset = p.verticalOffset;
+                p.verticalOffset += p.verticalDirection * p.verticalSpeed * dt;
+                if (p.verticalOffset > p.verticalRange) {
+                    p.verticalOffset = p.verticalRange;
+                    p.verticalDirection = -1;
+                }
+                if (p.verticalOffset < -p.verticalRange) {
+                    p.verticalOffset = -p.verticalRange;
+                    p.verticalDirection = 1;
+                }
+                p.y += p.verticalOffset - oldOffset;
+            }
         }
         Game.platforms = Game.platforms.filter((platform) => {
             const stillAboveScreen = platform.y + platform.height > -20;
@@ -226,6 +241,12 @@ export const Game = {
                 crumbleTimer: 0,
                 crumbleDuration: 0.72,
                 used: false,
+                verticalOffset: 0,
+                verticalRange: 24,
+                verticalSpeed: 42,
+                verticalDirection: Math.random() > 0.5 ? 1 : -1,
+                conveyorDirection: Math.random() > 0.5 ? 1 : -1,
+                conveyorSpeed: 82,
             };
             platform.centerX = platform.x + platform.width / 2;
             if (number % 100 === 0) {
@@ -245,6 +266,14 @@ export const Game = {
             } else if (number > 6 && number % 19 === 0) {
                 platform.type = 'ice';
                 platform.height = 9;
+            } else if (number > 14 && number % 31 === 0) {
+                platform.type = 'vertical';
+                platform.height = 10;
+                platform.verticalRange = 26;
+                platform.verticalSpeed = 48;
+            } else if (number > 14 && number % 37 === 0) {
+                platform.type = 'conveyor';
+                platform.height = 11;
             } else if (number > 8 && number % 11 === 0) {
                 platform.type = 'crumble';
                 platform.height = 11;
@@ -279,7 +308,7 @@ export const Game = {
             Game.cameraY += (targetCameraY - Game.cameraY) * follow;
         }
     },
-    syncGroundedPlayer: function () {
+    syncGroundedPlayer: function (dt) {
         let platform = null;
         for (let i = 0; i < Game.platforms.length; i++) {
             if (Game.platforms[i].number === Game.current) {
@@ -294,6 +323,12 @@ export const Game = {
         const horizontalOverlap = Player.x + Player.width > platform.x + 4 &&
             Player.x < platform.x + platform.width - 4;
         if (horizontalOverlap) {
+            if (platform.type === 'conveyor') {
+                Player.x = Math.max(0, Math.min(
+                    Game.getWidth() - Player.width,
+                    Player.x + platform.conveyorDirection * platform.conveyorSpeed * dt
+                ));
+            }
             Player.y = platform.y + platform.height;
             Player.previousY = Player.y;
         } else {

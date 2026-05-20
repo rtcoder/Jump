@@ -59,7 +59,7 @@ export const playerAction = {
     },
     update: function (dt, Game, keys) {
         if (Player.grounded) {
-            Game.syncGroundedPlayer();
+            Game.syncGroundedPlayer(dt);
         }
         if (keys.left) {
             this.moveLeft(dt);

@@ -90,6 +90,38 @@ function drawPlatform(ctx, Game, platform) {
         ctx.closePath();
         ctx.fill();
     }
+    if (platform.type === 'vertical') {
+        ctx.strokeStyle = 'rgba(255, 255, 255, .82)';
+        ctx.lineWidth = 2;
+        const centerX = platform.x + platform.width / 2;
+        ctx.beginPath();
+        ctx.moveTo(centerX, screenY + 2);
+        ctx.lineTo(centerX, screenY + platform.height - 2);
+        ctx.moveTo(centerX, screenY + 2);
+        ctx.lineTo(centerX - 5, screenY + 6);
+        ctx.moveTo(centerX, screenY + 2);
+        ctx.lineTo(centerX + 5, screenY + 6);
+        ctx.moveTo(centerX, screenY + platform.height - 2);
+        ctx.lineTo(centerX - 5, screenY + platform.height - 6);
+        ctx.moveTo(centerX, screenY + platform.height - 2);
+        ctx.lineTo(centerX + 5, screenY + platform.height - 6);
+        ctx.stroke();
+    }
+    if (platform.type === 'conveyor') {
+        ctx.fillStyle = 'rgba(17, 24, 39, .55)';
+        const arrowCount = Math.max(2, Math.floor(platform.width / 42));
+        for (let i = 0; i < arrowCount; i++) {
+            const centerX = platform.x + (i + 0.5) * platform.width / arrowCount;
+            const arrowY = screenY + platform.height / 2;
+            const direction = platform.conveyorDirection;
+            ctx.beginPath();
+            ctx.moveTo(centerX + direction * 8, arrowY);
+            ctx.lineTo(centerX - direction * 4, arrowY - 5);
+            ctx.lineTo(centerX - direction * 4, arrowY + 5);
+            ctx.closePath();
+            ctx.fill();
+        }
+    }
     if (platform.type === 'crumble') {
         ctx.strokeStyle = platform.crumbling ? '#5f3d2d' : 'rgba(95, 61, 45, .72)';
         ctx.lineWidth = 2;
