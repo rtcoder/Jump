@@ -1,8 +1,8 @@
-import { checkCollisions } from './checkCollisions.js?v=module-16';
-import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-16';
-import { drawView } from './drawing.js?v=module-16';
-import { keys } from './keys.js?v=module-16';
-import { Player, playerAction } from './playerAction.js?v=module-16';
+import { checkCollisions } from './checkCollisions.js?v=module-18';
+import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-18';
+import { drawView } from './drawing.js?v=module-18';
+import { keys } from './keys.js?v=module-18';
+import { Player, playerAction } from './playerAction.js?v=module-18';
 
 export const Game = {
     canvas: null,
@@ -48,6 +48,7 @@ export const Game = {
         slow: '#818cf8',
         hot: '#f97316',
         thin: '#facc15',
+        fake: '#e14f62',
         checkpoint: '#f4d35e',
         current: '#fff3a3',
     },
@@ -61,6 +62,9 @@ export const Game = {
         return Game.getHeight() - (y - Game.cameraY) - height;
     },
     isPlatformSolid: function (platform) {
+        if (platform.type === 'fake' && platform.used) {
+            return false;
+        }
         return platform.type !== 'vanish' || platform.vanishActive;
     },
     loadBestScore: function () {
@@ -353,6 +357,7 @@ export const Game = {
                 hotDuration: 0.55,
                 hotTimer: 0.55,
                 thinBonus: 6,
+                checkpointSlowDuration: 1.1,
             };
             platform.centerX = platform.x + platform.width / 2;
             if (number % 100 === 0) {
@@ -366,6 +371,9 @@ export const Game = {
             } else if (number > 0 && number % 23 === 0) {
                 platform.type = 'spring';
                 platform.height = 12;
+            } else if (number > 24 && number % 89 === 0) {
+                platform.type = 'fake';
+                platform.height = 10;
             } else if (number > 10 && number % 29 === 0) {
                 platform.type = 'boost';
                 platform.height = 12;

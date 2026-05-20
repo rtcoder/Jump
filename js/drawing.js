@@ -62,9 +62,17 @@ function drawPlatform(ctx, Game, platform) {
     if (platform.type === 'mine' && platform.used) {
         ctx.globalAlpha = 0.38;
     }
+    if (platform.type === 'fake' && platform.used) {
+        ctx.globalAlpha = 0.22;
+    }
     drawRoundedRect(ctx, platform.x, screenY, platform.width, platform.height, 5);
     ctx.fillStyle = color;
     ctx.fill();
+    if (platform.type === 'mine') {
+        ctx.strokeStyle = platform.used ? 'rgba(255, 255, 255, .45)' : '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
     ctx.globalAlpha = 1;
     ctx.shadowBlur = 0;
     ctx.shadowOffsetY = 0;
@@ -309,6 +317,17 @@ function drawPlatform(ctx, Game, platform) {
             ctx.fillText('+', platform.x + platform.width / 2, screenY + platform.height - 2);
         }
     }
+    if (platform.type === 'fake') {
+        ctx.strokeStyle = platform.used ? 'rgba(255, 255, 255, .24)' : 'rgba(255, 255, 255, .42)';
+        ctx.lineWidth = 2;
+        const dashWidth = Math.max(10, platform.width / 7);
+        for (let x = platform.x + 8; x < platform.x + platform.width - 8; x += dashWidth) {
+            ctx.beginPath();
+            ctx.moveTo(x, screenY + 2);
+            ctx.lineTo(Math.min(platform.x + platform.width - 8, x + dashWidth * 0.42), screenY + platform.height - 2);
+            ctx.stroke();
+        }
+    }
     if (platform.type === 'crumble') {
         ctx.strokeStyle = platform.crumbling ? '#5f3d2d' : 'rgba(95, 61, 45, .72)';
         ctx.lineWidth = 2;
@@ -322,10 +341,19 @@ function drawPlatform(ctx, Game, platform) {
         ctx.stroke();
     }
     if (platform.number % 100 === 0) {
+        ctx.strokeStyle = 'rgba(26, 31, 44, .55)';
+        ctx.lineWidth = 2;
+        const centerX = platform.x + platform.width / 2;
+        ctx.beginPath();
+        ctx.moveTo(platform.x + 18, screenY + platform.height / 2);
+        ctx.lineTo(centerX - 22, screenY + platform.height / 2);
+        ctx.moveTo(centerX + 22, screenY + platform.height / 2);
+        ctx.lineTo(platform.x + platform.width - 18, screenY + platform.height / 2);
+        ctx.stroke();
         ctx.fillStyle = '#1a1f2c';
         ctx.font = 'bold 12px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText(platform.number, platform.x + platform.width / 2, screenY + platform.height - 4);
+        ctx.fillText(platform.number, centerX, screenY + platform.height - 4);
     }
 }
 

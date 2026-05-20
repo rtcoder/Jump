@@ -111,6 +111,13 @@ export const playerAction = {
         if (platform.type === 'spring') {
             this.jump(true, Game);
             Game.addParticles(Player.x + Player.width / 2, Player.y, '#6ee7b7', 16);
+        } else if (platform.type === 'checkpoint') {
+            Player.shield = true;
+            Player.iceTimer = 0;
+            Player.slideVelocityX = 0;
+            Game.slowMotionTimer = platform.checkpointSlowDuration;
+            Game.addParticles(Player.x + Player.width / 2, Player.y, '#f4d35e', platform.used ? 12 : 30);
+            platform.used = true;
         } else if (platform.type === 'boost') {
             if (!platform.used) {
                 platform.used = true;
@@ -184,6 +191,13 @@ export const playerAction = {
             } else {
                 Game.addParticles(Player.x + Player.width / 2, Player.y, '#f8fafc', 7);
             }
+        } else if (platform.type === 'fake') {
+            platform.used = true;
+            Player.grounded = false;
+            Player.velocityY = Math.min(Player.velocityY, -120);
+            this.jumped = true;
+            this.fallout = true;
+            Game.addParticles(Player.x + Player.width / 2, Player.y, '#fca5a5', 24);
         } else if (platform.type === 'shield') {
             if (!platform.used) {
                 platform.used = true;
