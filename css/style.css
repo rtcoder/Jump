@@ -7,7 +7,12 @@ body{
 	width: 100%;
 	height: 100%;
 	overflow: hidden;
-	background: #62605a;
+	background-color: #26302d;
+	background-image:
+		linear-gradient(135deg, rgba(244, 211, 94, .16) 0 1px, transparent 1px 28px),
+		linear-gradient(45deg, rgba(96, 165, 250, .12) 0 1px, transparent 1px 32px),
+		linear-gradient(180deg, #1b2328 0%, #31362a 58%, #242927 100%);
+	background-size: 28px 28px, 32px 32px, 100% 100%;
 	font-family: monospace;
 	color: #ffffff;
 	touch-action: none;
