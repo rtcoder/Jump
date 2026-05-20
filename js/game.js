@@ -1,8 +1,8 @@
-import { checkCollisions } from './checkCollisions.js?v=module-3';
-import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-3';
-import { drawView } from './drawing.js?v=module-3';
-import { keys } from './keys.js?v=module-3';
-import { Player, playerAction } from './playerAction.js?v=module-3';
+import { checkCollisions } from './checkCollisions.js?v=module-4';
+import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-4';
+import { drawView } from './drawing.js?v=module-4';
+import { keys } from './keys.js?v=module-4';
+import { Player, playerAction } from './playerAction.js?v=module-4';
 
 export const Game = {
     canvas: null,
@@ -29,6 +29,7 @@ export const Game = {
         moving: '#4bc0ff',
         shrink: '#ffbf4d',
         spring: '#6ee7b7',
+        crumble: '#d7a86e',
         checkpoint: '#f4d35e',
         current: '#fff3a3',
     },
@@ -183,9 +184,14 @@ export const Game = {
                 }
                 p.x = Math.max(0, Math.min(Game.getWidth() - p.width, p.centerX - p.width / 2));
             }
+            if (p.type === 'crumble' && p.crumbling) {
+                p.crumbleTimer -= dt;
+            }
         }
         Game.platforms = Game.platforms.filter((platform) => {
-            return platform.y + platform.height > -20;
+            const stillAboveScreen = platform.y + platform.height > -20;
+            const stillSolid = platform.type !== 'crumble' || !platform.crumbling || platform.crumbleTimer > 0;
+            return stillAboveScreen && stillSolid;
         });
         if (Game.platforms.length <= 24) {
             Game.generatePlatforms(80);
@@ -214,6 +220,9 @@ export const Game = {
                 speed: 54 + Math.floor(number / 30) * 6,
                 resizeDirection: -1,
                 resizeSpeed: 38,
+                crumbling: false,
+                crumbleTimer: 0,
+                crumbleDuration: 0.72,
             };
             platform.centerX = platform.x + platform.width / 2;
             if (number % 100 === 0) {
@@ -227,6 +236,9 @@ export const Game = {
             } else if (number > 0 && number % 23 === 0) {
                 platform.type = 'spring';
                 platform.height = 12;
+            } else if (number > 8 && number % 11 === 0) {
+                platform.type = 'crumble';
+                platform.height = 11;
             } else if ((number % 15 === 0 || number % 17 === 0) && number > 0) {
                 platform.type = 'moving';
             } else if (number % 13 === 0 && number > 0) {

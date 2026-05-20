@@ -96,6 +96,12 @@ export const playerAction = {
         if (platform.type === 'spring') {
             this.jump(true, Game);
             Game.addParticles(Player.x + Player.width / 2, Player.y, '#6ee7b7', 16);
+        } else if (platform.type === 'crumble') {
+            if (!platform.crumbling) {
+                platform.crumbling = true;
+                platform.crumbleTimer = platform.crumbleDuration;
+                Game.addParticles(Player.x + Player.width / 2, Player.y, '#d7a86e', 14);
+            }
         } else {
             Game.addParticles(Player.x + Player.width / 2, Player.y, '#f8fafc', 7);
         }

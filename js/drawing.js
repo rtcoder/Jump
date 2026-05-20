@@ -43,18 +43,35 @@ function getPlatformColor(Game, platform) {
 function drawPlatform(ctx, Game, platform) {
     const screenY = Game.worldToScreenY(platform.y, platform.height);
     const color = getPlatformColor(Game, platform);
+    const crumbleProgress = platform.crumbling ?
+        1 - Math.max(0, platform.crumbleTimer) / platform.crumbleDuration :
+        0;
     ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
     ctx.shadowBlur = 10;
     ctx.shadowOffsetY = 4;
+    ctx.globalAlpha = platform.type === 'crumble' ? 1 - crumbleProgress * 0.45 : 1;
     drawRoundedRect(ctx, platform.x, screenY, platform.width, platform.height, 5);
     ctx.fillStyle = color;
     ctx.fill();
+    ctx.globalAlpha = 1;
     ctx.shadowBlur = 0;
     ctx.shadowOffsetY = 0;
 
     if (platform.type === 'spring') {
         ctx.fillStyle = '#102a27';
         ctx.fillRect(platform.x + platform.width * 0.35, screenY + 3, platform.width * 0.3, 2);
+    }
+    if (platform.type === 'crumble') {
+        ctx.strokeStyle = platform.crumbling ? '#5f3d2d' : 'rgba(95, 61, 45, .72)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(platform.x + platform.width * 0.18, screenY + 2);
+        ctx.lineTo(platform.x + platform.width * 0.32, screenY + platform.height - 2);
+        ctx.moveTo(platform.x + platform.width * 0.5, screenY + 1);
+        ctx.lineTo(platform.x + platform.width * 0.58, screenY + platform.height - 1);
+        ctx.moveTo(platform.x + platform.width * 0.72, screenY + 2);
+        ctx.lineTo(platform.x + platform.width * 0.64, screenY + platform.height - 2);
+        ctx.stroke();
     }
     if (platform.number % 100 === 0) {
         ctx.fillStyle = '#1a1f2c';
