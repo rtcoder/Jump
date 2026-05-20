@@ -1,8 +1,8 @@
-import { checkCollisions } from './checkCollisions.js?v=module-7';
-import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-7';
-import { drawView } from './drawing.js?v=module-7';
-import { keys } from './keys.js?v=module-7';
-import { Player, playerAction } from './playerAction.js?v=module-7';
+import { checkCollisions } from './checkCollisions.js?v=module-8';
+import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-8';
+import { drawView } from './drawing.js?v=module-8';
+import { keys } from './keys.js?v=module-8';
+import { Player, playerAction } from './playerAction.js?v=module-8';
 
 export const Game = {
     canvas: null,
@@ -21,6 +21,7 @@ export const Game = {
     gravity: 920,
     cameraY: 0,
     cameraEase: 7,
+    platformBufferScreens: 2.2,
     platforms: [],
     particles: [],
     newRecordShown: false,
@@ -86,8 +87,9 @@ export const Game = {
         Game.cameraY = 0;
         Game.newRecordShown = false;
         playerAction.reset();
-        Game.generatePlatforms(110);
+        Game.generatePlatforms(120);
         Game.setPlayer();
+        Game.ensurePlatformBuffer();
         Game.updateHud();
         Game.setOverlay('hidden');
         Game.lastFrameTime = 0;
@@ -149,6 +151,7 @@ export const Game = {
     },
     update: function (dt) {
         Game.movePlatforms(dt);
+        Game.ensurePlatformBuffer();
         playerAction.update(dt, Game, keys);
         checkCollisions.checkPlatformsEnd(Game, Player, playerAction);
         Game.updateCamera(dt);
@@ -222,8 +225,22 @@ export const Game = {
             const stillSolid = platform.type !== 'crumble' || !platform.crumbling || platform.crumbleTimer > 0;
             return stillAboveScreen && stillSolid;
         });
-        if (Game.platforms.length <= 24) {
-            Game.generatePlatforms(80);
+        Game.ensurePlatformBuffer();
+    },
+    getHighestPlatformY: function () {
+        if (Game.platforms.length === 0) {
+            return 0;
+        }
+        return Game.platforms.reduce((highest, platform) => {
+            return Math.max(highest, platform.y);
+        }, Game.platforms[0].y);
+    },
+    ensurePlatformBuffer: function () {
+        const targetTopY = Math.max(Player.y, Game.cameraY) + Game.getHeight() * Game.platformBufferScreens;
+        let safety = 0;
+        while (Game.getHighestPlatformY() < targetTopY && safety < 12) {
+            Game.generatePlatforms(40);
+            safety++;
         }
     },
     generatePlatforms: function (count) {
