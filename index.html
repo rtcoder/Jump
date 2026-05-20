@@ -3,31 +3,44 @@
 	<head>
 		<title>Jump!</title>
 		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, height=device-height initial-scale=1, maximum-scale=1, user-scalable=no">
+		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
 		<link rel="stylesheet" type="text/css" href="css/style.css">
 	</head>
 	<body>
-		<canvas id="canvas" width="400" height="600"></canvas>
-		<script>
-			var canvas = document.getElementById("canvas");
-			var ctx = canvas.getContext('2d');
-		</script>
-		<script src="js/customFunctions.js"></script>
-		<script src="js/drawing.js"></script>
-		<script src="js/checkCollisions.js"></script>
-		<script src="js/playerAction.js"></script>
-		<script src="js/keys.js"></script>
-		<script src="js/game.js"></script>
-		<div id="mask">
-			<h1>Jump!</h1>
-			<div id="score"></div>
-			<ul id="menu">
-				<li onclick="Game.startGame()">New Game</li>
-				<!-- <li>Character</li> -->
-			</ul>
-			<div id="credits">
-				Jump! created with <span class="light-red">&hearts;</span> and <a href="https://github.com">GitHub</a> by <a href="https://github.com/rtcoder">rtCoder</a>
+		<main id="game-shell">
+			<canvas id="canvas" width="400" height="600"></canvas>
+			<div id="hud">
+				<div class="hud-item">
+					<span>Score</span>
+					<strong id="hud-score-value">0</strong>
+				</div>
+				<div class="hud-item">
+					<span>Best</span>
+					<strong id="hud-best-value">0</strong>
+				</div>
 			</div>
-		</div>
+			<div id="touch-controls" aria-label="Touch controls">
+				<div class="touch-row">
+					<button id="touch-left" class="touch-button" type="button" aria-label="Move left">‹</button>
+					<button id="touch-right" class="touch-button" type="button" aria-label="Move right">›</button>
+				</div>
+				<button id="touch-jump" class="touch-button touch-jump" type="button" aria-label="Jump">Jump</button>
+			</div>
+			<div id="mask">
+				<section class="menu-panel">
+					<h1>Jump!</h1>
+					<div id="score"></div>
+					<p class="best-line">Best <strong id="best-score">0</strong></p>
+					<p class="controls-help">Arrows move. Space jumps.</p>
+					<ul id="menu">
+						<li><button id="new-game-button" type="button">New Game</button></li>
+					</ul>
+				</section>
+				<div id="credits">
+					Jump! created with <span class="light-red">&hearts;</span> and <a href="https://github.com">GitHub</a> by <a href="https://github.com/rtcoder">rtCoder</a>
+				</div>
+			</div>
+		</main>
+		<script type="module" src="js/main.js?v=module-2"></script>
 	</body>
 </html>

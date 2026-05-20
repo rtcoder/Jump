@@ -1,92 +1,107 @@
-var Player = {
-	step : 3,
-	maxJump : 80,
-	x : null,
-	y : null,
-	width : 20,
-	height : 40,
-	color: '#0c7893'
-}
+export const Player = {
+    step: 190,
+    jumpVelocity: 430,
+    boostJumpVelocity: 570,
+    x: 0,
+    y: 0,
+    previousY: 0,
+    velocityY: 0,
+    width: 22,
+    height: 44,
+    color: '#39c7d4',
+    facing: 1,
+    grounded: false,
+    landingPulse: 0,
+};
 
-var playerAction={
-	playerI:0,
-	jumped :false,
-	allowJump:true,
-	fallout:false,
-	jumpBack:false,
-	jumpEvent:null,
-	jumpI:0,
-	jumpUP:function(){
-		playerAction.jumpI+=2;;
-		Player.y+=2;
-		var point = {
-			x:Player.x,
-			y:Player.y,
-			width:Player.width,
-			height:Player.height
-		}
-		if(playerAction.jumpI>=Player.maxJump)
-			playerAction.jumpBack=true
-	},
-	jumpDOWN:function(){
-		playerAction.fallout=true;
-		playerAction.allowJump = false;
-		Player.y-=2;
-		playerAction.jumpI=0;
-		var p = Game.platforms;
+export const playerAction = {
+    playerI: 0,
+    jumped: false,
+    allowJump: true,
+    fallout: false,
+    jumpBack: false,
+    jumpEvent: null,
+    jumpI: 0,
+    reset: function () {
+        this.playerI = 0;
+        this.jumped = false;
+        this.allowJump = true;
+        this.fallout = false;
+        this.jumpBack = false;
+        this.jumpI = 0;
+        this.jumpEvent = null;
+        Player.velocityY = 0;
+        Player.grounded = true;
+        Player.landingPulse = 0;
+    },
+    moveLeft: function (dt) {
+        Player.facing = -1;
+        this.playerI = this.playerI < 20 ? this.playerI + 46 * dt : -20;
+        Player.x = Math.max(0, Player.x - Player.step * dt);
+    },
+    moveRight: function (dt, Game) {
+        Player.facing = 1;
+        this.playerI = this.playerI < 20 ? this.playerI + 46 * dt : -20;
+        Player.x = Math.min(Game.getWidth() - Player.width, Player.x + Player.step * dt);
+    },
+    jump: function (boost, Game) {
+        if (Player.grounded && this.allowJump && Game.isStarted) {
+            Player.velocityY = boost ? Player.boostJumpVelocity : Player.jumpVelocity;
+            Player.grounded = false;
+            this.jumped = true;
+            this.jumpBack = false;
+        }
+    },
+    update: function (dt, Game, keys) {
+        if (Player.grounded) {
+            Game.syncGroundedPlayer();
+        }
+        if (keys.left) {
+            this.moveLeft(dt);
+        }
+        if (keys.right) {
+            this.moveRight(dt, Game);
+        }
+        if (!keys.left && !keys.right) {
+            this.playerI *= Math.max(0, 1 - 10 * dt);
+            if (Math.abs(this.playerI) < 0.2) {
+                this.playerI = 0;
+            }
+        }
+        if (keys.space) {
+            this.jump(false, Game);
+        }
 
-		if(Game.onPlatform.indexOf(true)<0){
-			var j=0;
-		}else{
-			var j=p[Game.onPlatform.indexOf(true)].y + p[Game.onPlatform.indexOf(true)].height;
-		}
-		if(Player.y<=j){
-			Player.y=j
-			clearInterval(playerAction.jumpEvent);
-			playerAction.jumped=false;
-			playerAction.fallout=false;
-			playerAction.allowJump = true;
-			if(Player.y <= 0){
-				Game.finish();
-			}
-		}
-	},
-	jump:function(){
-		if(!playerAction.jumped && playerAction.allowJump && !playerAction.fallout){
-			playerAction.jumped=true;
-			playerAction.oldYplayerPos=Player.y;
-			playerAction.jumpBack=false
-			playerAction.jumpEvent = setInterval(function(){
-				if(!playerAction.jumpBack){
-					playerAction.jumpUP();
-				}else{
-					playerAction.jumpDOWN();
-				}
-			},3)
-		}
-	},
-	moveLeft: function(){
-		var step = Player.step;
+        Player.previousY = Player.y;
+        if (Player.grounded) {
+            Player.velocityY = 0;
+        } else {
+            Player.velocityY -= Game.gravity * dt;
+            Player.y += Player.velocityY * dt;
+        }
+        Player.landingPulse = Math.max(0, Player.landingPulse - dt * 5);
 
-		if(playerAction.playerI < 20){
-			playerAction.playerI+=0.7;
-		}else{
-			playerAction.playerI = -20;
-		}
-		if(Player.x>=step){
-			Player.x-=step;
-		}
-	},
-	moveRight: function(){
-		var step = Player.step;
-
-		if(playerAction.playerI < 20){
-			playerAction.playerI+=0.7;
-		}else{
-			playerAction.playerI = -20;
-		}
-		if(Player.x <= canvas.width - Player.width - step){
-			Player.x+=step;
-		}
-	}
-}
+        this.jumped = !Player.grounded;
+        this.fallout = Player.velocityY < 0 && !Player.grounded;
+        this.jumpBack = Player.velocityY < 0;
+    },
+    landOn: function (platform, Game) {
+        Player.y = platform.y + platform.height;
+        Player.velocityY = 0;
+        Player.grounded = true;
+        Player.landingPulse = 1;
+        this.jumped = false;
+        this.fallout = false;
+        this.allowJump = true;
+        if (platform.type === 'spring') {
+            this.jump(true, Game);
+            Game.addParticles(Player.x + Player.width / 2, Player.y, '#6ee7b7', 16);
+        } else {
+            Game.addParticles(Player.x + Player.width / 2, Player.y, '#f8fafc', 7);
+        }
+    },
+    jumpUP: function () {
+    },
+    jumpDOWN: function () {
+    },
+};

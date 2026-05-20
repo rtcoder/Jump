@@ -1,31 +1,17 @@
-if (typeof(Number.prototype.toRad) === "undefined") {
-	Number.prototype.toRad = function() {
-		return this * Math.PI / 180;
-	}
+export function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-Object.size = function(obj) {
-	var size = 0, key;
-	for (key in obj) {
-		if (obj.hasOwnProperty(key)) size++;
-	}
-	return size;
-};
+export function resizeCanvas(canvas, ctx) {
+    const width = Math.min(450, window.innerWidth);
+    const height = window.innerHeight;
+    const ratio = window.devicePixelRatio || 1;
 
-function getRandomInt(min, max) {
-	return Math.floor(Math.random() * (max - min + 1)) + min;
+    canvas.logicalWidth = width;
+    canvas.logicalHeight = height;
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    canvas.width = Math.floor(width * ratio);
+    canvas.height = Math.floor(height * ratio);
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
 }
-
-// console =  {}
-function resize(){
-	if(window.innerWidth > 450)
-		canvas.setAttribute('width', 450);
-	else
-		canvas.setAttribute('width', window.innerWidth);
-
-	canvas.setAttribute('height', window.innerHeight);
-}
-
-window.addEventListener('resize',resize);
-
-resize();
