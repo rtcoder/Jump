@@ -36,10 +36,13 @@ function bindTouchControl(id, keyName) {
     }
     const setActive = (value) => {
         keys[keyName] = value;
+        element.classList.toggle('is-active', value);
     };
     element.addEventListener('pointerdown', (e) => {
         e.preventDefault();
-        element.setPointerCapture(e.pointerId);
+        if (element.setPointerCapture) {
+            element.setPointerCapture(e.pointerId);
+        }
         setActive(true);
     });
     element.addEventListener('pointerup', (e) => {
@@ -58,4 +61,22 @@ export function setupTouchControls() {
     bindTouchControl('touch-left', 'left');
     bindTouchControl('touch-right', 'right');
     bindTouchControl('touch-jump', 'space');
+    document.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+    });
+    window.addEventListener('blur', resetControls);
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            resetControls();
+        }
+    });
+}
+
+export function resetControls() {
+    keys.left = false;
+    keys.right = false;
+    keys.space = false;
+    document.querySelectorAll('.touch-button.is-active').forEach((button) => {
+        button.classList.remove('is-active');
+    });
 }

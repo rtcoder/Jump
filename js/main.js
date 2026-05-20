@@ -1,5 +1,5 @@
-import { Game, initGame } from './game.js?v=module-2';
-import { setupKeyboardControls, setupTouchControls } from './keys.js?v=module-2';
+import { Game, initGame } from './game.js?v=module-3';
+import { resetControls, setupKeyboardControls, setupTouchControls } from './keys.js?v=module-3';
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -16,3 +16,16 @@ newGameButton.addEventListener('click', () => {
 window.addEventListener('resize', () => {
     Game.handleResize();
 });
+
+window.addEventListener('orientationchange', () => {
+    resetControls();
+    window.setTimeout(() => {
+        Game.handleResize();
+    }, 120);
+});
+
+if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+        Game.handleResize();
+    });
+}

@@ -11,6 +11,9 @@ body{
 	font-family: monospace;
 	color: #ffffff;
 	touch-action: none;
+	overscroll-behavior: none;
+	-webkit-user-select: none;
+	user-select: none;
 }
 a{
 	color: #fff;
@@ -22,6 +25,7 @@ a{
 	position: relative;
 	width: min(100vw, 450px);
 	height: 100vh;
+	height: 100dvh;
 	margin: 0 auto;
 	overflow: hidden;
 	background: #1f2424;
@@ -33,6 +37,7 @@ canvas{
 	width: 100%;
 	height: 100%;
 	background: #1f2424;
+	touch-action: none;
 }
 #hud{
 	position: absolute;
@@ -106,6 +111,9 @@ canvas{
 	margin: 0 0 28px;
 	text-transform: none;
 }
+.controls-help .mobile-help{
+	display: none;
+}
 #mask ul#menu{
 	list-style: none;
 	margin: 0;
@@ -167,40 +175,70 @@ canvas{
 }
 #touch-controls{
 	position: absolute;
-	left: 12px;
-	right: 12px;
-	bottom: 18px;
+	left: max(12px, env(safe-area-inset-left));
+	right: max(12px, env(safe-area-inset-right));
+	bottom: max(18px, calc(env(safe-area-inset-bottom) + 12px));
 	display: none;
 	justify-content: space-between;
 	align-items: flex-end;
 	pointer-events: none;
+	z-index: 4;
 }
 .touch-row{
 	display: flex;
 	gap: 10px;
 }
 .touch-button{
-	width: 58px;
-	height: 58px;
+	width: 64px;
+	height: 64px;
 	border: 1px solid rgba(255, 255, 255, .18);
 	border-radius: 8px;
 	background: rgba(10, 16, 26, .5);
 	color: #ffffff;
 	font-family: inherit;
-	font-size: 30px;
+	font-size: 34px;
 	font-weight: 700;
 	pointer-events: auto;
 	backdrop-filter: blur(6px);
+	-webkit-tap-highlight-color: transparent;
+	touch-action: none;
+	transition: transform .08s ease, background .08s ease, border-color .08s ease;
+}
+.touch-button.is-active,
+.touch-button:active{
+	transform: translateY(2px) scale(.98);
+	background: rgba(244, 211, 94, .72);
+	border-color: rgba(244, 211, 94, .95);
+	color: #111827;
 }
 .touch-jump{
-	width: 86px;
+	width: 96px;
 	font-size: 16px;
 	text-transform: uppercase;
 }
 
-@media (hover: none), (pointer: coarse){
-	#touch-controls{
+@media (hover: none), (pointer: coarse), (max-width: 600px){
+	#game-shell.is-playing #touch-controls{
 		display: flex;
+	}
+	.controls-help .desktop-help{
+		display: none;
+	}
+	.controls-help .mobile-help{
+		display: block;
+	}
+	#hud{
+		top: max(12px, env(safe-area-inset-top));
+	}
+	.hud-item{
+		min-width: 82px;
+		padding: 7px 9px;
+	}
+	.hud-item strong{
+		font-size: 22px;
+	}
+	#mask{
+		padding: max(22px, env(safe-area-inset-top)) 22px max(22px, env(safe-area-inset-bottom));
 	}
 }
 
@@ -210,5 +248,12 @@ canvas{
 	}
 	#mask #credits{
 		display: none;
+	}
+	.touch-button{
+		width: 56px;
+		height: 56px;
+	}
+	.touch-jump{
+		width: 84px;
 	}
 }

@@ -4,7 +4,7 @@
 		<title>Jump!</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
-		<link rel="stylesheet" type="text/css" href="css/style.css">
+		<link rel="stylesheet" type="text/css" href="css/style.css?v=mobile-2">
 	</head>
 	<body>
 		<main id="game-shell">
@@ -31,7 +31,10 @@
 					<h1>Jump!</h1>
 					<div id="score"></div>
 					<p class="best-line">Best <strong id="best-score">0</strong></p>
-					<p class="controls-help">Arrows move. Space jumps.</p>
+					<p class="controls-help">
+						<span class="desktop-help">Arrows move. Space jumps.</span>
+						<span class="mobile-help">Use the touch buttons to move and jump.</span>
+					</p>
 					<ul id="menu">
 						<li><button id="new-game-button" type="button">New Game</button></li>
 					</ul>
@@ -41,6 +44,6 @@
 				</div>
 			</div>
 		</main>
-		<script type="module" src="js/main.js?v=module-2"></script>
+		<script type="module" src="js/main.js?v=module-3"></script>
 	</body>
 </html>

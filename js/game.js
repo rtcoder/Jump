@@ -1,8 +1,8 @@
-import { checkCollisions } from './checkCollisions.js?v=module-2';
-import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-2';
-import { drawView } from './drawing.js?v=module-2';
-import { keys } from './keys.js?v=module-2';
-import { Player, playerAction } from './playerAction.js?v=module-2';
+import { checkCollisions } from './checkCollisions.js?v=module-3';
+import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-3';
+import { drawView } from './drawing.js?v=module-3';
+import { keys } from './keys.js?v=module-3';
+import { Player, playerAction } from './playerAction.js?v=module-3';
 
 export const Game = {
     canvas: null,
@@ -109,6 +109,7 @@ export const Game = {
     },
     setOverlay: function (className) {
         document.getElementById('mask').className = className;
+        document.getElementById('game-shell').classList.toggle('is-playing', className === 'hidden');
     },
     showScore: function () {
         const scoreDiv = document.getElementById('score');
