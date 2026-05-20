@@ -1,8 +1,8 @@
-import { checkCollisions } from './checkCollisions.js?v=module-8';
-import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-8';
-import { drawView } from './drawing.js?v=module-8';
-import { keys } from './keys.js?v=module-8';
-import { Player, playerAction } from './playerAction.js?v=module-8';
+import { checkCollisions } from './checkCollisions.js?v=module-12';
+import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-12';
+import { drawView } from './drawing.js?v=module-12';
+import { keys } from './keys.js?v=module-12';
+import { Player, playerAction } from './playerAction.js?v=module-12';
 
 export const Game = {
     canvas: null,
@@ -37,6 +37,8 @@ export const Game = {
         conveyor: '#34d399',
         vanish: '#c084fc',
         shield: '#81e6d9',
+        swing: '#f472b6',
+        teleport: '#60a5fa',
         checkpoint: '#f4d35e',
         current: '#fff3a3',
     },
@@ -175,6 +177,9 @@ export const Game = {
         for (let i = 0; i < Game.platforms.length; i++) {
             const p = Game.platforms[i];
             p.y -= fallSpeed * dt;
+            if (p.baseY !== undefined) {
+                p.baseY -= fallSpeed * dt;
+            }
             if (p.type === 'moving') {
                 p.x += p.direction * p.speed * dt;
                 if (p.x <= 0) {
@@ -214,6 +219,28 @@ export const Game = {
                 }
                 p.y += p.verticalOffset - oldOffset;
             }
+            if (p.type === 'swing') {
+                p.swingTime += dt;
+                p.x = p.baseX;
+                p.y = p.baseY;
+                p.swingForce = Math.sin(p.swingTime * p.swingSpeed);
+                p.deltaX = 0;
+                p.deltaY = 0;
+            } else {
+                p.deltaX = 0;
+                p.deltaY = 0;
+            }
+            if (p.type === 'teleport') {
+                p.teleportTimer -= dt;
+                if (p.teleportTimer <= 0) {
+                    const oldX = p.x;
+                    p.x = getRandomInt(8, Math.max(8, Math.floor(Game.getWidth() - p.width - 8)));
+                    p.centerX = p.x + p.width / 2;
+                    p.teleportTimer = p.teleportInterval;
+                    p.deltaX = p.x - oldX;
+                    Game.addParticles(p.x + p.width / 2, p.y + p.height, '#60a5fa', 18);
+                }
+            }
             if (p.type === 'vanish') {
                 p.vanishTimer += dt;
                 const phaseTime = p.vanishTimer % p.vanishCycle;
@@ -232,8 +259,8 @@ export const Game = {
             return 0;
         }
         return Game.platforms.reduce((highest, platform) => {
-            return Math.max(highest, platform.y);
-        }, Game.platforms[0].y);
+            return Math.max(highest, platform.baseY || platform.y);
+        }, Game.platforms[0].baseY || Game.platforms[0].y);
     },
     ensurePlatformBuffer: function () {
         const targetTopY = Math.max(Player.y, Game.cameraY) + Game.getHeight() * Game.platformBufferScreens;
@@ -248,7 +275,7 @@ export const Game = {
         let number = 0;
         if (Game.platforms.length > 0) {
             const last = Game.platforms[Game.platforms.length - 1];
-            y = last.y + Game.platformVerticalDistance;
+            y = (last.baseY || last.y) + Game.platformVerticalDistance;
             number = last.number + 1;
         }
         for (let i = 0; i < count; i++) {
@@ -280,6 +307,19 @@ export const Game = {
                 vanishCycle: 2.2,
                 vanishActiveTime: 1.35,
                 vanishActive: true,
+                baseX: 0,
+                baseY: y,
+                swingTime: Math.random() * Math.PI * 2,
+                swingSpeed: 2.2,
+                swingRangeX: 0,
+                swingRangeY: 0,
+                swingForce: 0,
+                swingImpulse: 210,
+                deltaX: 0,
+                deltaY: 0,
+                teleportTimer: 2.2 + Math.random() * 1.2,
+                teleportInterval: 2.8,
+                teleportWarnTime: 0.75,
             };
             platform.centerX = platform.x + platform.width / 2;
             if (number % 100 === 0) {
@@ -313,6 +353,16 @@ export const Game = {
             } else if (number > 20 && number % 43 === 0) {
                 platform.type = 'shield';
                 platform.height = 12;
+            } else if (number > 18 && number % 47 === 0) {
+                platform.type = 'swing';
+                platform.height = 10;
+                platform.baseX = platform.x;
+                platform.baseY = platform.y;
+                platform.swingRangeX = 0;
+                platform.swingRangeY = 0;
+            } else if (number > 18 && number % 53 === 0) {
+                platform.type = 'teleport';
+                platform.height = 10;
             } else if (number > 8 && number % 11 === 0) {
                 platform.type = 'crumble';
                 platform.height = 11;
@@ -371,6 +421,10 @@ export const Game = {
                     Game.getWidth() - Player.width,
                     Player.x + platform.conveyorDirection * platform.conveyorSpeed * dt
                 ));
+            }
+            if (platform.type === 'swing' || platform.type === 'teleport') {
+                Player.x = Math.max(0, Math.min(Game.getWidth() - Player.width, Player.x + platform.deltaX));
+                Player.y += platform.deltaY;
             }
             Player.y = platform.y + platform.height;
             Player.previousY = Player.y;

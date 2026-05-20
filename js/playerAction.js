@@ -125,6 +125,11 @@ export const playerAction = {
             Player.iceTimer = 0.9;
             Player.slideVelocityX = (Player.facing || 1) * 78;
             Game.addParticles(Player.x + Player.width / 2, Player.y, '#b8f7ff', 10);
+        } else if (platform.type === 'swing') {
+            Player.iceTimer = 0.55;
+            Player.slideVelocityX = platform.swingForce * platform.swingImpulse;
+            Player.facing = Player.slideVelocityX >= 0 ? 1 : -1;
+            Game.addParticles(Player.x + Player.width / 2, Player.y, '#f472b6', 12);
         } else if (platform.type === 'shield') {
             if (!platform.used) {
                 platform.used = true;

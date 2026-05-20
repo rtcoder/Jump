@@ -152,6 +152,40 @@ function drawPlatform(ctx, Game, platform) {
         ctx.quadraticCurveTo(centerX - 8, centerY - 4, centerX, centerY - 6);
         ctx.stroke();
     }
+    if (platform.type === 'swing') {
+        ctx.strokeStyle = 'rgba(255, 255, 255, .82)';
+        ctx.lineWidth = 2;
+        const centerX = platform.x + platform.width / 2;
+        const centerY = screenY + platform.height / 2;
+        const bobX = centerX + (platform.swingForce || 0) * 13;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 13, Math.PI * 0.12, Math.PI * 0.88, false);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY - 2);
+        ctx.lineTo(bobX, centerY + 6);
+        ctx.stroke();
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(bobX, centerY + 6, 3, 0, 2 * Math.PI, false);
+        ctx.fill();
+    }
+    if (platform.type === 'teleport') {
+        const warning = platform.teleportTimer < platform.teleportWarnTime;
+        const centerX = platform.x + platform.width / 2;
+        const centerY = screenY + platform.height / 2;
+        ctx.strokeStyle = warning ? '#ffffff' : 'rgba(255, 255, 255, .72)';
+        ctx.lineWidth = warning ? 3 : 2;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, warning ? 9 : 6, 0, 2 * Math.PI, false);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(centerX - 12, centerY);
+        ctx.lineTo(centerX + 12, centerY);
+        ctx.moveTo(centerX, centerY - 7);
+        ctx.lineTo(centerX, centerY + 7);
+        ctx.stroke();
+    }
     if (platform.type === 'crumble') {
         ctx.strokeStyle = platform.crumbling ? '#5f3d2d' : 'rgba(95, 61, 45, .72)';
         ctx.lineWidth = 2;
