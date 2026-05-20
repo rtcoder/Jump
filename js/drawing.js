@@ -59,6 +59,9 @@ function drawPlatform(ctx, Game, platform) {
     if (platform.type === 'shield' && platform.used) {
         ctx.globalAlpha = 0.42;
     }
+    if (platform.type === 'mine' && platform.used) {
+        ctx.globalAlpha = 0.38;
+    }
     drawRoundedRect(ctx, platform.x, screenY, platform.width, platform.height, 5);
     ctx.fillStyle = color;
     ctx.fill();
@@ -185,6 +188,62 @@ function drawPlatform(ctx, Game, platform) {
         ctx.moveTo(centerX, centerY - 7);
         ctx.lineTo(centerX, centerY + 7);
         ctx.stroke();
+    }
+    if (platform.type === 'rotate') {
+        const centerX = platform.x + platform.width / 2;
+        const centerY = screenY + platform.height / 2;
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(-(platform.rotationAngle || 0));
+        ctx.fillStyle = 'rgba(255, 255, 255, .9)';
+        drawRoundedRect(ctx, -platform.width * 0.22, -2, platform.width * 0.44, 4, 2);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(17, 24, 39, .45)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-platform.width * 0.18, 0);
+        ctx.lineTo(platform.width * 0.18, 0);
+        ctx.stroke();
+        ctx.restore();
+    }
+    if (platform.type === 'spike') {
+        const safeStart = platform.x + platform.width * platform.spikeSafeStart;
+        const safeEnd = platform.x + platform.width * platform.spikeSafeEnd;
+        ctx.fillStyle = 'rgba(255, 255, 255, .9)';
+        drawRoundedRect(ctx, safeStart, screenY + 3, safeEnd - safeStart, platform.height - 6, 3);
+        ctx.fill();
+        ctx.fillStyle = '#7f1d1d';
+        const spikeCount = Math.max(3, Math.floor(platform.width / 24));
+        for (let i = 0; i < spikeCount; i++) {
+            const x = platform.x + (i + 0.5) * platform.width / spikeCount;
+            if (x > safeStart - 4 && x < safeEnd + 4) {
+                continue;
+            }
+            ctx.beginPath();
+            ctx.moveTo(x, screenY - 8);
+            ctx.lineTo(x - 6, screenY + 1);
+            ctx.lineTo(x + 6, screenY + 1);
+            ctx.closePath();
+            ctx.fill();
+        }
+    }
+    if (platform.type === 'mine') {
+        const centerX = platform.x + platform.width / 2;
+        const centerY = screenY + platform.height / 2;
+        ctx.fillStyle = platform.used ? 'rgba(255, 255, 255, .45)' : '#fb923c';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, platform.used ? 4 : 7, 0, 2 * Math.PI, false);
+        ctx.fill();
+        if (!platform.used) {
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(centerX - 12, centerY);
+            ctx.lineTo(centerX + 12, centerY);
+            ctx.moveTo(centerX, centerY - 8);
+            ctx.lineTo(centerX, centerY + 8);
+            ctx.stroke();
+        }
     }
     if (platform.type === 'crumble') {
         ctx.strokeStyle = platform.crumbling ? '#5f3d2d' : 'rgba(95, 61, 45, .72)';

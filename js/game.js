@@ -1,8 +1,8 @@
-import { checkCollisions } from './checkCollisions.js?v=module-12';
-import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-12';
-import { drawView } from './drawing.js?v=module-12';
-import { keys } from './keys.js?v=module-12';
-import { Player, playerAction } from './playerAction.js?v=module-12';
+import { checkCollisions } from './checkCollisions.js?v=module-13';
+import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-13';
+import { drawView } from './drawing.js?v=module-13';
+import { keys } from './keys.js?v=module-13';
+import { Player, playerAction } from './playerAction.js?v=module-13';
 
 export const Game = {
     canvas: null,
@@ -39,6 +39,9 @@ export const Game = {
         shield: '#81e6d9',
         swing: '#f472b6',
         teleport: '#60a5fa',
+        rotate: '#f59e0b',
+        spike: '#ef4444',
+        mine: '#111827',
         checkpoint: '#f4d35e',
         current: '#fff3a3',
     },
@@ -241,6 +244,10 @@ export const Game = {
                     Game.addParticles(p.x + p.width / 2, p.y + p.height, '#60a5fa', 18);
                 }
             }
+            if (p.type === 'rotate') {
+                p.rotationTime += dt * p.rotationSpeed;
+                p.rotationAngle = Math.sin(p.rotationTime) * p.rotationMaxAngle;
+            }
             if (p.type === 'vanish') {
                 p.vanishTimer += dt;
                 const phaseTime = p.vanishTimer % p.vanishCycle;
@@ -320,6 +327,15 @@ export const Game = {
                 teleportTimer: 2.2 + Math.random() * 1.2,
                 teleportInterval: 2.8,
                 teleportWarnTime: 0.75,
+                rotationTime: Math.random() * Math.PI * 2,
+                rotationSpeed: 1.8,
+                rotationAngle: 0,
+                rotationMaxAngle: 0.26,
+                rotationSlide: 88,
+                spikeSafeStart: 0.24,
+                spikeSafeEnd: 0.76,
+                mineForceX: 175,
+                mineForceY: 610,
             };
             platform.centerX = platform.x + platform.width / 2;
             if (number % 100 === 0) {
@@ -363,6 +379,19 @@ export const Game = {
             } else if (number > 18 && number % 53 === 0) {
                 platform.type = 'teleport';
                 platform.height = 10;
+            } else if (number > 20 && number % 59 === 0) {
+                platform.type = 'rotate';
+                platform.height = 10;
+                platform.rotationMaxAngle = 0.28;
+                platform.rotationSlide = 92;
+            } else if (number > 22 && number % 61 === 0) {
+                platform.type = 'spike';
+                platform.height = 12;
+                platform.spikeSafeStart = 0.28;
+                platform.spikeSafeEnd = 0.72;
+            } else if (number > 24 && number % 67 === 0) {
+                platform.type = 'mine';
+                platform.height = 12;
             } else if (number > 8 && number % 11 === 0) {
                 platform.type = 'crumble';
                 platform.height = 11;
@@ -425,6 +454,12 @@ export const Game = {
             if (platform.type === 'swing' || platform.type === 'teleport') {
                 Player.x = Math.max(0, Math.min(Game.getWidth() - Player.width, Player.x + platform.deltaX));
                 Player.y += platform.deltaY;
+            }
+            if (platform.type === 'rotate') {
+                Player.x = Math.max(0, Math.min(
+                    Game.getWidth() - Player.width,
+                    Player.x + Math.sin(platform.rotationAngle) * platform.rotationSlide * dt
+                ));
             }
             Player.y = platform.y + platform.height;
             Player.previousY = Player.y;
@@ -507,6 +542,9 @@ export const Game = {
                 Game.platforms[i].maxWidth *= scale;
                 Game.platforms[i].minWidth *= scale;
                 Game.platforms[i].centerX *= scale;
+                if (Game.platforms[i].baseX !== undefined) {
+                    Game.platforms[i].baseX *= scale;
+                }
             }
         }
         Game.draw();

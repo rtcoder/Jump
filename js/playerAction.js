@@ -130,6 +130,44 @@ export const playerAction = {
             Player.slideVelocityX = platform.swingForce * platform.swingImpulse;
             Player.facing = Player.slideVelocityX >= 0 ? 1 : -1;
             Game.addParticles(Player.x + Player.width / 2, Player.y, '#f472b6', 12);
+        } else if (platform.type === 'rotate') {
+            Player.iceTimer = 0.32;
+            Player.slideVelocityX = Math.sin(platform.rotationAngle) * platform.rotationSlide;
+            Game.addParticles(Player.x + Player.width / 2, Player.y, '#f59e0b', 10);
+        } else if (platform.type === 'spike') {
+            const footCenter = Player.x + Player.width / 2;
+            const safeStart = platform.x + platform.width * platform.spikeSafeStart;
+            const safeEnd = platform.x + platform.width * platform.spikeSafeEnd;
+            if (footCenter < safeStart || footCenter > safeEnd) {
+                if (Player.shield) {
+                    Player.shield = false;
+                    Player.velocityY = Player.boostJumpVelocity * 0.82;
+                    Player.grounded = false;
+                    this.jumped = true;
+                    Game.addParticles(Player.x + Player.width / 2, Player.y, '#81e6d9', 30);
+                } else {
+                    Game.addParticles(Player.x + Player.width / 2, Player.y, '#ef4444', 28);
+                    Game.finish();
+                }
+            } else {
+                Game.addParticles(Player.x + Player.width / 2, Player.y, '#f8fafc', 7);
+            }
+        } else if (platform.type === 'mine') {
+            if (!platform.used) {
+                const playerCenter = Player.x + Player.width / 2;
+                const platformCenter = platform.x + platform.width / 2;
+                const direction = playerCenter >= platformCenter ? 1 : -1;
+                platform.used = true;
+                Player.velocityY = platform.mineForceY;
+                Player.grounded = false;
+                Player.iceTimer = 0.42;
+                Player.slideVelocityX = direction * platform.mineForceX;
+                Player.facing = direction;
+                this.jumped = true;
+                Game.addParticles(platformCenter, platform.y + platform.height, '#fb923c', 36);
+            } else {
+                Game.addParticles(Player.x + Player.width / 2, Player.y, '#f8fafc', 7);
+            }
         } else if (platform.type === 'shield') {
             if (!platform.used) {
                 platform.used = true;
