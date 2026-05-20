@@ -2,6 +2,7 @@ export const Player = {
     step: 190,
     jumpVelocity: 430,
     boostJumpVelocity: 570,
+    megaBoostJumpVelocity: 690,
     x: 0,
     y: 0,
     previousY: 0,
@@ -12,6 +13,8 @@ export const Player = {
     facing: 1,
     grounded: false,
     landingPulse: 0,
+    slideVelocityX: 0,
+    iceTimer: 0,
 };
 
 export const playerAction = {
@@ -33,6 +36,8 @@ export const playerAction = {
         Player.velocityY = 0;
         Player.grounded = true;
         Player.landingPulse = 0;
+        Player.slideVelocityX = 0;
+        Player.iceTimer = 0;
     },
     moveLeft: function (dt) {
         Player.facing = -1;
@@ -61,6 +66,14 @@ export const playerAction = {
         }
         if (keys.right) {
             this.moveRight(dt, Game);
+        }
+        if (Player.iceTimer > 0) {
+            Player.x = Math.max(0, Math.min(
+                Game.getWidth() - Player.width,
+                Player.x + Player.slideVelocityX * dt
+            ));
+            Player.slideVelocityX *= Math.max(0, 1 - 1.7 * dt);
+            Player.iceTimer = Math.max(0, Player.iceTimer - dt);
         }
         if (!keys.left && !keys.right) {
             this.playerI *= Math.max(0, 1 - 10 * dt);
@@ -96,6 +109,20 @@ export const playerAction = {
         if (platform.type === 'spring') {
             this.jump(true, Game);
             Game.addParticles(Player.x + Player.width / 2, Player.y, '#6ee7b7', 16);
+        } else if (platform.type === 'boost') {
+            if (!platform.used) {
+                platform.used = true;
+                Player.velocityY = Player.megaBoostJumpVelocity;
+                Player.grounded = false;
+                this.jumped = true;
+                Game.addParticles(Player.x + Player.width / 2, Player.y, '#b8f7ff', 28);
+            } else {
+                Game.addParticles(Player.x + Player.width / 2, Player.y, '#f8fafc', 7);
+            }
+        } else if (platform.type === 'ice') {
+            Player.iceTimer = 0.9;
+            Player.slideVelocityX = (Player.facing || 1) * 78;
+            Game.addParticles(Player.x + Player.width / 2, Player.y, '#b8f7ff', 10);
         } else if (platform.type === 'crumble') {
             if (!platform.crumbling) {
                 platform.crumbling = true;

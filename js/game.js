@@ -1,8 +1,8 @@
-import { checkCollisions } from './checkCollisions.js?v=module-4';
-import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-4';
-import { drawView } from './drawing.js?v=module-4';
-import { keys } from './keys.js?v=module-4';
-import { Player, playerAction } from './playerAction.js?v=module-4';
+import { checkCollisions } from './checkCollisions.js?v=module-5';
+import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-5';
+import { drawView } from './drawing.js?v=module-5';
+import { keys } from './keys.js?v=module-5';
+import { Player, playerAction } from './playerAction.js?v=module-5';
 
 export const Game = {
     canvas: null,
@@ -30,6 +30,8 @@ export const Game = {
         shrink: '#ffbf4d',
         spring: '#6ee7b7',
         crumble: '#d7a86e',
+        ice: '#b8f7ff',
+        boost: '#a78bfa',
         checkpoint: '#f4d35e',
         current: '#fff3a3',
     },
@@ -223,6 +225,7 @@ export const Game = {
                 crumbling: false,
                 crumbleTimer: 0,
                 crumbleDuration: 0.72,
+                used: false,
             };
             platform.centerX = platform.x + platform.width / 2;
             if (number % 100 === 0) {
@@ -236,6 +239,12 @@ export const Game = {
             } else if (number > 0 && number % 23 === 0) {
                 platform.type = 'spring';
                 platform.height = 12;
+            } else if (number > 10 && number % 29 === 0) {
+                platform.type = 'boost';
+                platform.height = 12;
+            } else if (number > 6 && number % 19 === 0) {
+                platform.type = 'ice';
+                platform.height = 9;
             } else if (number > 8 && number % 11 === 0) {
                 platform.type = 'crumble';
                 platform.height = 11;
