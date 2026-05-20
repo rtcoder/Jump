@@ -1,8 +1,8 @@
-import { checkCollisions } from './checkCollisions.js?v=module-19';
-import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-19';
-import { drawView } from './drawing.js?v=module-19';
-import { keys } from './keys.js?v=module-19';
-import { Player, playerAction } from './playerAction.js?v=module-19';
+import { checkCollisions } from './checkCollisions.js?v=module-20';
+import { getRandomInt, resizeCanvas } from './customFunctions.js?v=module-20';
+import { drawView } from './drawing.js?v=module-20';
+import { keys } from './keys.js?v=module-20';
+import { Player, playerAction } from './playerAction.js?v=module-20';
 
 export const Game = {
     canvas: null,

@@ -4,7 +4,7 @@
 		<title>Jump!</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no">
-		<link rel="stylesheet" type="text/css" href="css/style.css?v=mobile-4">
+		<link rel="stylesheet" type="text/css" href="css/style.css?v=mobile-5">
 	</head>
 	<body>
 		<main id="game-shell">
@@ -43,6 +43,38 @@
 						<span class="desktop-help">Arrows move. Space jumps.</span>
 						<span class="mobile-help">Use the touch buttons to move and jump.</span>
 					</p>
+					<div class="menu-tabs" role="tablist" aria-label="Menu tabs">
+						<button id="tab-play" class="menu-tab is-active" type="button" role="tab" aria-selected="true" aria-controls="play-panel">Play</button>
+						<button id="tab-platforms" class="menu-tab" type="button" role="tab" aria-selected="false" aria-controls="platforms-panel">Platforms</button>
+					</div>
+					<div id="platforms-panel" class="platforms-panel" role="tabpanel" aria-labelledby="tab-platforms" hidden>
+						<ul class="platform-list">
+							<li><span class="platform-chip normal"></span><strong>Normal</strong><small>standard landing spot</small></li>
+							<li><span class="platform-chip moving"></span><strong>Moving</strong><small>slides left and right</small></li>
+							<li><span class="platform-chip shrink"></span><strong>Shrink</strong><small>changes width over time</small></li>
+							<li><span class="platform-chip spring"></span><strong>Spring</strong><small>higher jump</small></li>
+							<li><span class="platform-chip boost"></span><strong>Boost</strong><small>one strong launch</small></li>
+							<li><span class="platform-chip crumble"></span><strong>Crumble</strong><small>breaks after landing</small></li>
+							<li><span class="platform-chip ice"></span><strong>Ice</strong><small>adds a short slide</small></li>
+							<li><span class="platform-chip vertical"></span><strong>Vertical</strong><small>moves up and down</small></li>
+							<li><span class="platform-chip conveyor"></span><strong>Conveyor</strong><small>pushes sideways</small></li>
+							<li><span class="platform-chip vanish"></span><strong>Vanish</strong><small>turns solid on and off</small></li>
+							<li><span class="platform-chip shield"></span><strong>Shield</strong><small>grants one rescue</small></li>
+							<li><span class="platform-chip swing"></span><strong>Swing</strong><small>timed side impulse</small></li>
+							<li><span class="platform-chip teleport"></span><strong>Teleport</strong><small>jumps to another place</small></li>
+							<li><span class="platform-chip rotate"></span><strong>Rotate</strong><small>tilts and slides you</small></li>
+							<li><span class="platform-chip spike"></span><strong>Spike</strong><small>land in the safe center</small></li>
+							<li><span class="platform-chip mine"></span><strong>Mine</strong><small>explodes and launches you</small></li>
+							<li><span class="platform-chip magnet"></span><strong>Magnet</strong><small>pulls you while airborne</small></li>
+							<li><span class="platform-chip slow"></span><strong>Slow</strong><small>brief slow motion</small></li>
+							<li><span class="platform-chip hot"></span><strong>Hot</strong><small>leave before the timer ends</small></li>
+							<li><span class="platform-chip thin"></span><strong>Thin</strong><small>narrow landing, bonus score</small></li>
+							<li><span class="platform-chip fake"></span><strong>Fake</strong><small>breaks and lets you fall</small></li>
+							<li><span class="platform-chip coin"></span><strong>Coin</strong><small>one-time score bonus</small></li>
+							<li><span class="platform-chip combo"></span><strong>Combo</strong><small>builds score multiplier</small></li>
+							<li><span class="platform-chip checkpoint"></span><strong>Checkpoint</strong><small>safe rest and shield refill</small></li>
+						</ul>
+					</div>
 					<ul id="menu">
 						<li><button id="new-game-button" type="button">New Game</button></li>
 					</ul>
@@ -52,6 +84,6 @@
 				</div>
 			</div>
 		</main>
-		<script type="module" src="js/main.js?v=module-19"></script>
+		<script type="module" src="js/main.js?v=module-20"></script>
 	</body>
 </html>
